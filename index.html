@@ -3,102 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vraj Clicker 2</title>
+    <title>Vraj Clicker 2 | Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #05070a; --panel: rgba(22, 27, 46, 0.98); --accent: #22d3ee; --gold: #fbbf24; --text: #f8fafc; --primary: #6c5ce7; }
-        * { user-select: none; -webkit-user-select: none; outline: none; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; height: 100vh; overflow: hidden; }
+        :root {
+            --primary: #7c3aed;
+            --accent: #22d3ee;
+            --gold: #fbbf24;
+            --bg: #020617;
+            --glass: rgba(15, 23, 42, 0.8);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { 
+            user-select: none; -webkit-user-select: none; 
+            box-sizing: border-box; transition: all 0.2s ease;
+            scrollbar-width: thin; scrollbar-color: var(--primary) transparent;
+        }
+
+        /* CUSTOM SCROLLBARS */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg);
+            color: #f8fafc;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            background-image: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #020617 100%);
+        }
+
         .hidden { display: none !important; }
 
         /* --- AUTH --- */
-        .auth-screen { background: var(--panel); padding: 2rem; border-radius: 24px; text-align: center; width: 350px; border: 1px solid #1e293b; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2000; }
-        input { width: 100%; padding: 12px; margin: 5px 0; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: white; }
-        .btn { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 700; width: 100%; margin-top: 10px; }
-
-        /* --- GAME LAYOUT --- */
-        #screen-game { display: grid; grid-template-columns: 320px 1fr 320px; width: 100vw; height: 100vh; }
-        .panel { background: var(--panel); border: 1px solid #1e293b; padding: 15px; display: flex; flex-direction: column; overflow: hidden; }
-        .scrollable { overflow-y: auto; flex-grow: 1; padding-right: 5px; }
-        .center-area { display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, #1e293b 0%, #05070a 100%); }
-
-        /* --- CLICKER --- */
-        #score-display { font-size: 3rem; color: var(--gold); font-weight: 900; }
-        #main-clicker { 
-            width: 260px; height: 260px; border-radius: 50%; border: 8px solid var(--accent);
-            background: url('https://i.imgur.com/GscT2bX.png') center/cover no-repeat;
-            cursor: pointer; transition: 0.05s; box-shadow: 0 0 40px rgba(34, 211, 238, 0.3);
+        .auth-screen {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            padding: 3rem;
+            border-radius: 32px;
+            text-align: center;
+            width: 400px;
+            border: 1px solid var(--border);
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
-        #main-clicker:active { transform: scale(0.95); }
 
-        /* --- STORE & ACHIEVEMENTS --- */
-        .item-card { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px; margin-bottom: 8px; cursor: pointer; border: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
-        .item-card:hover { border-color: var(--accent); }
-        .ach-card { background: rgba(251, 191, 36, 0.1); border: 1px solid var(--gold); padding: 8px; border-radius: 8px; margin-bottom: 5px; font-size: 0.8rem; }
-        .locked { opacity: 0.3; filter: grayscale(1); }
+        input {
+            width: 100%; padding: 16px; margin: 10px 0; border-radius: 14px;
+            border: 1px solid var(--border); background: rgba(0,0,0,0.3);
+            color: white; font-size: 1rem; font-family: inherit;
+        }
 
-        /* --- CHAT --- */
-        #chat-box { height: 200px; background: rgba(0,0,0,0.4); border-radius: 10px; padding: 10px; font-size: 0.85rem; overflow-y: auto; margin-bottom: 5px; }
-        .chat-msg { margin-bottom: 5px; border-bottom: 1px solid #222; padding-bottom: 2px; }
-        .chat-user { color: var(--accent); font-weight: bold; }
-        #chat-input { width: 100%; background: #111; border: 1px solid #333; color: white; padding: 8px; border-radius: 5px; }
+        .btn {
+            background: linear-gradient(135deg, var(--primary), #4f46e5);
+            color: white; border: none; padding: 16px; border-radius: 14px;
+            cursor: pointer; font-weight: 700; width: 100%; margin-top: 15px;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(124, 58, 237, 0.3); }
 
-        /* --- TABS --- */
-        .tabs { display: flex; gap: 5px; margin-bottom: 10px; }
-        .tab-btn { flex: 1; padding: 5px; font-size: 0.7rem; background: #1e293b; border: none; color: white; cursor: pointer; border-radius: 5px; }
-        .tab-btn.active { background: var(--primary); }
+        /* --- GAME ENGINE LAYOUT --- */
+        #screen-game {
+            display: grid;
+            grid-template-columns: 350px 1fr 350px;
+            width: 100vw; height: 100vh;
+            gap: 15px; padding: 15px;
+        }
+
+        .panel {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            display: flex; flex-direction: column;
+            overflow: hidden; padding: 20px;
+        }
+
+        .scroll-area { overflow-y: auto; flex-grow: 1; margin-top: 10px; padding-right: 8px; }
+
+        /* --- CENTER AREA --- */
+        .center-area {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative;
+        }
+
+        #score-display {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 4rem; font-weight: 900; color: var(--gold);
+            text-shadow: 0 0 30px rgba(251, 191, 36, 0.4);
+            margin: 0;
+        }
+
+        #main-clicker {
+            width: 320px; height: 320px; border-radius: 50%;
+            border: 12px solid rgba(255, 255, 255, 0.05);
+            background: url('https://i.imgur.com/GscT2bX.png') center/cover no-repeat;
+            cursor: pointer; position: relative;
+            box-shadow: 0 0 80px rgba(34, 211, 238, 0.2);
+            margin: 30px 0;
+        }
+        #main-clicker:hover { border-color: var(--accent); transform: scale(1.02); }
+        #main-clicker:active { transform: scale(0.94); }
+
+        /* --- STORE CARDS --- */
+        .item-card {
+            background: rgba(255,255,255,0.03); padding: 15px; border-radius: 16px;
+            margin-bottom: 12px; cursor: pointer; border: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .item-card:hover { background: rgba(255,255,255,0.08); border-color: var(--accent); }
+
+        /* --- GLOBAL CHAT --- */
+        #chat-container { height: 250px; display: flex; flex-direction: column; margin-top: 20px; }
+        #chat-box { flex-grow: 1; background: rgba(0,0,0,0.2); border-radius: 15px; padding: 12px; overflow-y: auto; font-size: 0.9rem; margin-bottom: 10px; }
+        .chat-msg { margin-bottom: 6px; line-height: 1.4; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px; }
+        .chat-user { color: var(--accent); font-weight: 700; margin-right: 5px; }
+
+        /* --- TAB SYSTEM --- */
+        .tab-nav { display: flex; gap: 10px; margin-bottom: 15px; }
+        .tab-btn { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: transparent; color: white; cursor: pointer; font-weight: 600; }
+        .tab-btn.active { background: var(--primary); border-color: var(--primary); }
+
+        .lb-row { display: flex; justify-content: space-between; padding: 12px; border-radius: 12px; margin-bottom: 5px; background: rgba(255,255,255,0.02); font-size: 0.95rem; }
+        .rank-1 { background: linear-gradient(90deg, rgba(251, 191, 36, 0.15), transparent); border: 1px solid var(--gold); }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
-    <div id="screen-auth">
+    <div id="screen-auth-wrap">
         <div id="screen-menu" class="auth-screen">
-            <h1>Vraj Clicker 2</h1>
+            <h1 style="font-family:'Montserrat'; font-weight:900; margin-top:0;">VRAJ CLICKER 2</h1>
             <button class="btn" onclick="showAuth('screen-login')">Login</button>
-            <button class="btn" onclick="showAuth('screen-signup')" style="background:#4834d4">Sign Up</button>
+            <button class="btn" onclick="showAuth('screen-signup')" style="background:var(--accent); color:#000;">Sign Up</button>
         </div>
+        
         <div id="screen-login" class="auth-screen hidden">
-            <h3>Login</h3>
-            <input type="email" id="l-email" placeholder="Email">
+            <h2>WELCOME BACK</h2>
+            <input type="email" id="l-email" placeholder="Email Address">
             <input type="password" id="l-pass" placeholder="Password">
-            <button class="btn" id="do-login">Login</button>
-            <button class="btn" onclick="showAuth('screen-menu')" style="background:none">Back</button>
+            <button class="btn" id="do-login">Enter Game</button>
+            <button class="btn" onclick="showAuth('screen-menu')" style="background:none; border:1px solid var(--border)">Back</button>
         </div>
+
         <div id="screen-signup" class="auth-screen hidden">
-            <h3>New Account</h3>
-            <input type="text" id="s-user" placeholder="Username">
-            <input type="email" id="s-email" placeholder="Email">
+            <h2>START JOURNEY</h2>
+            <input type="text" id="s-user" placeholder="Create Username">
+            <input type="email" id="s-email" placeholder="Email Address">
             <input type="password" id="s-pass" placeholder="Password">
-            <button class="btn" id="do-signup">Sign Up</button>
-            <button class="btn" onclick="showAuth('screen-menu')" style="background:none">Back</button>
+            <button class="btn" id="do-signup">Create & Play</button>
+            <button class="btn" onclick="showAuth('screen-menu')" style="background:none; border:1px solid var(--border)">Back</button>
         </div>
     </div>
 
     <div id="screen-game" class="hidden">
         <div class="panel">
-            <div class="tabs">
-                <button class="tab-btn active" onclick="setTab('store')">STORE</button>
-                <button class="tab-btn" onclick="setTab('achs')">ACHIEVEMENTS</button>
+            <div class="tab-nav">
+                <button class="tab-btn active" id="tab-btn-store" onclick="setTab('store')">STORE</button>
+                <button class="tab-btn" id="tab-btn-achs" onclick="setTab('achs')">ACHIEVEMENTS</button>
             </div>
-            <div id="tab-store" class="scrollable"></div>
-            <div id="tab-achs" class="scrollable hidden"></div>
+            <div id="store-list" class="scroll-area"></div>
+            <div id="achs-list" class="scroll-area hidden"></div>
         </div>
 
         <div class="center-area">
             <div id="score-display">0</div>
-            <div id="cps-display" style="color:var(--accent); font-weight:bold; margin-bottom:15px;">0 CPS</div>
+            <div id="cps-display" style="color:var(--accent); font-weight:600; font-size:1.2rem;">0.0 PER SECOND</div>
             <div id="main-clicker"></div>
-            <button onclick="prestige()" id="pres-btn" class="btn" style="width:200px;" disabled>PRESTIGE</button>
+            <button class="btn" id="pres-btn" onclick="prestige()" style="width:250px;" disabled>PRESTIGE (1M CLICKS)</button>
         </div>
 
         <div class="panel">
-            <h4 style="color:var(--gold); margin:0 0 10px 0;">GLOBAL BEST</h4>
-            <div id="lb-body" style="flex-grow:1; overflow-y:auto; font-size:0.8rem;"></div>
+            <h3 style="margin:0 0 10px 0; color:var(--gold); font-size:1rem; letter-spacing:1px;">ALL-TIME BEST</h3>
+            <div id="lb-body" class="scroll-area" style="max-height: 40%;"></div>
             
-            <h4 style="color:var(--accent); margin:15px 0 5px 0;">GLOBAL CHAT</h4>
-            <div id="chat-box"></div>
-            <input type="text" id="chat-input" placeholder="Press Enter to send...">
-            
-            <button onclick="logout()" style="background:#eb4d4b; border:none; color:white; padding:8px; border-radius:5px; cursor:pointer; margin-top:10px; font-size:0.7rem;">Logout</button>
+            <div id="chat-container">
+                <h3 style="margin:0 0 10px 0; color:var(--accent); font-size:1rem;">GLOBAL CHAT</h3>
+                <div id="chat-box"></div>
+                <input type="text" id="chat-input" placeholder="Say something...">
+            </div>
+            <button onclick="logout()" style="margin-top:auto; background:none; border:1px solid #ef4444; color:#ef4444; padding:10px; border-radius:12px; cursor:pointer;">Logout</button>
         </div>
     </div>
 
@@ -119,23 +206,16 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
+
         let userData = { score: 0, highscore: 0, cps: 0, prestige: 0, name: "", counts: {}, achievements: [] };
 
         const emojis = ["🍼","🧸","🏫","🎒","🎮","📺","📱","💻","🚀","🛸","🛰️","🪐","🌌","🧬","🧪","⚡","🔥","💎","🏆","👑"];
-        const names = ["Baby","Toddler","Student","Graduate","Gamer","YouTuber","Streamer","CEO","Investor","Founder","Cyborg","AI","Alien","Galactic","Universal","Dimensional","Eternal","Omega","Supreme","Ultimate"];
-        
+        const names = ["Infant","Toddler","Preschooler","Scholar","Gamer","Creator","Streamer","Manager","Executive","CEO","Android","Matrix","Nebula","Warp","Interstellar","God-Tier","Eternal","Singularity","Supreme","Infinite"];
         const storeItems = [];
         for(let i=0; i<100; i++) {
-            storeItems.push({ 
-                id: 'u'+i, 
-                emoji: emojis[i % emojis.length], 
-                name: names[i % names.length] + " Vraj", 
-                cost: Math.floor(15 * Math.pow(1.3, i)), 
-                power: (i+1) * Math.pow(1.2, i/3) 
-            });
+            storeItems.push({ id: 'u'+i, emoji: emojis[i % emojis.length], name: names[i % names.length] + " Vraj", cost: Math.floor(15 * Math.pow(1.3, i)), power: (i+1) * Math.pow(1.2, i/3) });
         }
-
-        const achs = Array.from({length: 100}, (_, i) => ({ id: 'a'+i, goal: Math.pow(i+1, 4) * 50, name: `Vraj God ${i+1}` }));
+        const achs = Array.from({length: 100}, (_, i) => ({ id: 'a'+i, goal: Math.pow(i+1, 4) * 100, name: `Mastery Level ${i+1}` }));
 
         window.showAuth = (id) => {
             document.querySelectorAll('.auth-screen').forEach(s => s.classList.add('hidden'));
@@ -147,99 +227,113 @@
             createUserWithEmailAndPassword(auth, e, p).then(res => {
                 sendEmailVerification(res.user);
                 set(ref(db, 'users/' + res.user.uid), { name: u, score: 0, highscore: 0, cps: 0, prestige: 0, counts: {}, achievements: [] });
-                alert("Verify email then login!");
+                alert("Account created! Verify your email to play.");
             }).catch(err => alert(err.message));
         };
 
         document.getElementById('do-login').onclick = () => {
-            signInWithEmailAndPassword(auth, document.getElementById('l-email').value, document.getElementById('l-pass').value).catch(e => alert("Login Error"));
+            signInWithEmailAndPassword(auth, document.getElementById('l-email').value, document.getElementById('l-pass').value).catch(e => alert("Login Failed: Check email verification."));
         };
 
         onAuthStateChanged(auth, user => {
             if(user && user.emailVerified) {
-                document.getElementById('screen-auth').classList.add('hidden');
+                document.getElementById('screen-auth-wrap').classList.add('hidden');
                 document.getElementById('screen-game').classList.remove('hidden');
                 onValue(ref(db, 'users/' + user.uid), s => { 
-                    if(s.exists()){ userData = s.val(); userData.counts = userData.counts || {}; userData.achievements = userData.achievements || []; updateUI(); }
+                    if(s.exists()){ userData = s.val(); updateUI(); }
                 });
             } else { showAuth('screen-menu'); }
         });
 
         document.getElementById('main-clicker').onclick = () => {
-            userData.score += (1 + (userData.cps * 0.1)) * Math.pow(2, userData.prestige);
+            userData.score += (1 + (userData.cps * 0.15)) * Math.pow(2, userData.prestige);
             if(userData.score > (userData.highscore || 0)) userData.highscore = userData.score;
             checkAchs(); save();
         };
 
+        function checkAchs() {
+            achs.forEach(a => { if(userData.score >= a.goal && !userData.achievements.includes(a.id)) userData.achievements.push(a.id); });
+        }
+
         window.buy = (id) => {
             const item = storeItems.find(i => i.id === id);
-            const cost = Math.floor(item.cost * Math.pow(1.15, userData.counts[id] || 0));
+            const count = userData.counts[id] || 0;
+            const cost = Math.floor(item.cost * Math.pow(1.15, count));
             if(userData.score >= cost) {
                 userData.score -= cost;
-                userData.counts[id] = (userData.counts[id] || 0) + 1;
-                let total = 0; storeItems.forEach(si => { total += (si.power * (userData.counts[si.id] || 0)); });
-                userData.cps = total;
+                userData.counts[id] = count + 1;
+                let t = 0; storeItems.forEach(si => t += (si.power * (userData.counts[si.id] || 0)));
+                userData.cps = t;
                 save();
             }
         };
 
-        function checkAchs() {
-            achs.forEach(a => {
-                if(userData.score >= a.goal && !userData.achievements.includes(a.id)) {
-                    userData.achievements.push(a.id);
-                }
-            });
-        }
-
         window.setTab = (t) => {
-            document.getElementById('tab-store').classList.toggle('hidden', t !== 'store');
-            document.getElementById('tab-achs').classList.toggle('hidden', t !== 'achs');
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.innerText.toLowerCase() === t));
+            document.getElementById('store-list').classList.toggle('hidden', t !== 'store');
+            document.getElementById('achs-list').classList.toggle('hidden', t !== 'achs');
+            document.getElementById('tab-btn-store').classList.toggle('active', t === 'store');
+            document.getElementById('tab-btn-achs').classList.toggle('active', t === 'achs');
+        };
+
+        window.prestige = () => {
+            if(userData.score >= 1000000) {
+                userData.prestige += 1; userData.score = 0; userData.cps = 0; userData.counts = {};
+                save(); alert("Ascended! Permanent 2x boost active.");
+            }
         };
 
         function save() { if(auth.currentUser) update(ref(db, 'users/' + auth.currentUser.uid), userData); }
 
         function updateUI() {
             document.getElementById('score-display').innerText = Math.floor(userData.score).toLocaleString();
-            document.getElementById('cps-display').innerText = `${userData.cps.toFixed(1)} CPS`;
+            document.getElementById('cps-display').innerText = `${userData.cps.toFixed(1)} PER SECOND`;
             document.getElementById('pres-btn').disabled = userData.score < 1000000;
             
-            const store = document.getElementById('tab-store'); store.innerHTML = "";
-            storeItems.slice(0, Object.keys(userData.counts).length + 3).forEach(item => {
+            const sl = document.getElementById('store-list'); sl.innerHTML = "";
+            storeItems.slice(0, Object.keys(userData.counts).length + 4).forEach(item => {
                 const count = userData.counts[item.id] || 0;
                 const cost = Math.floor(item.cost * Math.pow(1.15, count));
-                store.innerHTML += `<div class="item-card" onclick="buy('${item.id}')"><div><b>${item.emoji} ${item.name}</b><br><small>${cost.toLocaleString()}</small></div><div>x${count}</div></div>`;
+                sl.innerHTML += `<div class="item-card" onclick="buy('${item.id}')">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <span style="font-size:1.8rem;">${item.emoji}</span>
+                        <div><b style="color:var(--accent);">${item.name}</b><br><small style="color:var(--gold);">${cost.toLocaleString()} clicks</small></div>
+                    </div>
+                    <div style="font-weight:bold; opacity:0.6;">x${count}</div>
+                </div>`;
             });
 
-            const alist = document.getElementById('tab-achs'); alist.innerHTML = "";
+            const al = document.getElementById('achs-list'); al.innerHTML = "";
             achs.forEach(a => {
-                const isGot = userData.achievements.includes(a.id);
-                alist.innerHTML += `<div class="ach-card ${isGot?'':'locked'}">🏆 ${a.name}<br><small>${a.goal.toLocaleString()} Clicks</small></div>`;
+                const got = userData.achievements.includes(a.id);
+                al.innerHTML += `<div class="item-card ${got?'':'locked'}" style="opacity:${got?1:0.3}">
+                    <div><b>🏆 ${a.name}</b><br><small>${a.goal.toLocaleString()} Clicks</small></div>
+                    <div>${got?'✅':'🔒'}</div>
+                </div>`;
             });
         }
 
-        // Leaderboard (Tracks highscore)
         onValue(query(ref(db, 'users'), orderByChild('highscore'), limitToLast(20)), s => {
             const b = document.getElementById('lb-body'); b.innerHTML = "";
             let p = []; s.forEach(c => p.push(c.val()));
-            p.reverse().forEach((u, i) => { b.innerHTML += `<div class="lb-row ${i==0?'top1':''}"><span>#${i+1} ${u.name}</span><span>${Math.floor(u.highscore || 0).toLocaleString()}</span></div>`; });
+            p.reverse().forEach((u, i) => { 
+                b.innerHTML += `<div class="lb-row ${i==0?'rank-1':''}"><span>#${i+1} ${u.name}</span><span>${Math.floor(u.highscore || 0).toLocaleString()}</span></div>`; 
+            });
         });
 
-        // Chat Logic
         document.getElementById('chat-input').onkeydown = (e) => {
             if(e.key === 'Enter' && e.target.value.trim() !== "") {
                 push(ref(db, 'chat'), { user: userData.name, msg: e.target.value, time: serverTimestamp() });
                 e.target.value = "";
             }
         };
-        onValue(query(ref(db, 'chat'), limitToLast(15)), s => {
+        onValue(query(ref(db, 'chat'), limitToLast(20)), s => {
             const cb = document.getElementById('chat-box'); cb.innerHTML = "";
             s.forEach(c => { const d = c.val(); cb.innerHTML += `<div class="chat-msg"><span class="chat-user">${d.user}:</span> ${d.msg}</div>`; });
             cb.scrollTop = cb.scrollHeight;
         });
 
         window.logout = () => signOut(auth).then(() => location.reload());
-        setInterval(() => { if(auth.currentUser?.emailVerified && userData.cps > 0){ userData.score += (userData.cps * 0.1); if(userData.score > userData.highscore) userData.highscore = userData.score; save(); }}, 1000);
+        setInterval(() => { if(auth.currentUser?.emailVerified && userData.cps > 0){ userData.score += (userData.cps * 0.1); if(userData.score > (userData.highscore||0)) userData.highscore = userData.score; save(); }}, 1000);
     </script>
 </body>
 </html>
