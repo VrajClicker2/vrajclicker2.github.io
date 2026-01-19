@@ -2,142 +2,148 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vraj Clicker 2 | Official</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Vraj Clicker 2</title>
     <style>
         :root {
-            --bg: #05070a;
-            --panel: rgba(17, 24, 39, 0.95);
+            --bg: #0f172a;
+            --panel: rgba(30, 41, 59, 0.9);
             --accent: #22d3ee;
             --gold: #fbbf24;
             --text: #f8fafc;
-            --primary: #8b5cf6;
+            --primary: #6c5ce7;
         }
 
-        * { user-select: none; -webkit-user-select: none; box-sizing: border-box; font-family: 'Inter', sans-serif; cursor: default; }
-        
-        body { 
-            margin: 0; background: var(--bg); color: var(--text); 
-            height: 100vh; display: flex; overflow: hidden;
+        * { user-select: none; -webkit-user-select: none; outline: none; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #05070a;
+            color: var(--text);
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
         }
 
         .hidden { display: none !important; }
 
-        /* AUTH SCREEN */
-        #screen-auth {
-            position: fixed; inset: 0; z-index: 9999; background: var(--bg);
-            display: flex; justify-content: center; align-items: center;
+        /* --- RESTORED LOGIN SCREENS --- */
+        .auth-screen {
+            background: var(--panel);
+            padding: 2.5rem;
+            border-radius: 24px;
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .auth-card { background: var(--panel); padding: 40px; border-radius: 24px; width: 350px; border: 1px solid #1e293b; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; cursor: text; }
-        .auth-btn { width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; }
 
-        /* GAME LAYOUT */
+        input {
+            width: 100%; padding: 14px; margin: 8px 0; border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(15, 23, 42, 0.6); color: white;
+        }
+
+        .btn {
+            background: var(--primary); color: white; border: none;
+            padding: 14px 28px; border-radius: 12px; cursor: pointer;
+            font-weight: 700; width: 100%; margin-top: 10px;
+        }
+
+        /* --- NEWS TICKER --- */
+        #news-ticker {
+            position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.5);
+            padding: 5px; text-align: center; color: #94a3b8; font-size: 0.9rem;
+            border-bottom: 1px solid #333; z-index: 10;
+        }
+
+        /* --- GAME LAYOUT --- */
         #screen-game {
-            display: grid; grid-template-columns: 320px 1fr 320px;
-            width: 100%; height: 100vh;
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            width: 100vw; height: 100vh;
         }
 
-        .side-panel {
-            background: var(--panel); border-right: 1px solid #1e293b;
-            display: flex; flex-direction: column; padding: 20px; overflow-y: auto;
-        }
-        .right-panel { border-right: none; border-left: 1px solid #1e293b; }
-
-        /* CENTER AREA */
-        .center-area {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: radial-gradient(circle, #1e293b 0%, #05070a 100%);
-            position: relative;
+        .panel { background: var(--panel); border: 1px solid #1e293b; padding: 20px; overflow-y: auto; }
+        
+        .center-area { 
+            display: flex; flex-direction: column; align-items: center; 
+            justify-content: center; background: radial-gradient(circle, #1e293b 0%, #05070a 100%);
         }
 
-        #score-container { text-align: center; margin-bottom: 40px; }
-        #score-val { font-size: 3.5rem; font-weight: 900; color: var(--gold); text-shadow: 0 0 20px rgba(251, 191, 36, 0.3); }
-        #cps-val { color: var(--accent); font-size: 1.1rem; }
+        #score-display { font-size: 3rem; color: var(--gold); font-weight: 900; margin-bottom: 5px; }
 
         #main-clicker {
-            width: 320px; height: 320px; border-radius: 50%;
-            border: 10px solid rgba(255,255,255,0.1);
+            width: 280px; height: 280px; border-radius: 50%;
+            border: 10px solid var(--accent);
+            /* DIRECT IMGUR LINK */
             background: url('https://i.imgur.com/GscT2bX.png') center/cover;
-            cursor: pointer; transition: transform 0.05s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 0 60px rgba(34, 211, 238, 0.2);
+            cursor: pointer; transition: 0.05s;
+            box-shadow: 0 0 40px rgba(34, 211, 238, 0.3);
         }
-        #main-clicker:active { transform: scale(0.92); }
+        #main-clicker:active { transform: scale(0.95); }
 
-        /* UPGRADE CARDS */
-        .item-card {
-            background: rgba(255,255,255,0.03); border: 1px solid #1e293b;
-            padding: 12px; margin-bottom: 8px; border-radius: 12px;
+        /* UPGRADES */
+        .upgrade-card {
+            background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px;
+            margin-bottom: 10px; cursor: pointer; border: 1px solid #333;
             display: flex; justify-content: space-between; align-items: center;
-            transition: 0.2s; cursor: pointer;
         }
-        .item-card:hover { background: rgba(255,255,255,0.08); border-color: var(--accent); }
-        .item-card.locked { opacity: 0.4; filter: grayscale(1); cursor: not-allowed; }
-        .item-info b { display: block; font-size: 1rem; color: var(--accent); }
-        .item-info span { font-size: 0.8rem; color: #94a3b8; }
-        .item-cost { font-weight: bold; color: var(--gold); }
+        .upgrade-card:hover { border-color: var(--accent); }
+        .u-name { display: block; font-weight: bold; color: var(--accent); }
+        .u-cost { font-size: 0.8rem; color: var(--gold); }
 
         /* LEADERBOARD */
-        .lb-row { display: flex; justify-content: space-between; padding: 10px; border-radius: 8px; margin-bottom: 4px; background: rgba(0,0,0,0.2); }
-        .rank-1 { background: linear-gradient(90deg, rgba(251, 191, 36, 0.2), transparent); border: 1px solid var(--gold); }
-
-        /* FLOATING TEXT */
-        .plus-one {
-            position: absolute; color: white; font-weight: bold; font-size: 1.5rem;
-            pointer-events: none; animation: floatUp 0.8s ease-out forwards;
-        }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
-
-        /* PRESTIGE BAR */
-        .prestige-btn {
-            margin-top: 30px; background: var(--primary); padding: 12px 24px;
-            border-radius: 12px; border: none; color: white; font-weight: bold;
-            cursor: pointer; transition: 0.3s;
-        }
-        .prestige-btn:disabled { background: #334155; cursor: not-allowed; }
+        .lb-row { display: flex; justify-content: space-between; padding: 8px; font-size: 0.9rem; border-bottom: 1px solid #333; }
+        .top1 { color: var(--gold); font-weight: bold; }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
-    <div id="screen-auth">
-        <div class="auth-card">
-            <h1 style="color:var(--accent); margin-top:0;">VRAJ CLICKER 2</h1>
-            <input type="text" id="username" placeholder="Display Username">
-            <input type="email" id="email" placeholder="Email Address">
-            <input type="password" id="pass" placeholder="Password">
-            <button onclick="login()" class="auth-btn" style="background:var(--accent); color:#000;">LOGIN</button>
-            <button onclick="signup()" class="auth-btn" style="background:var(--primary);">SIGN UP</button>
-            <p id="auth-msg" style="font-size:0.8rem; color:#94a3b8; margin-top:15px;">Login to save your global rank</p>
-        </div>
+    <div id="news-ticker" class="hidden">News: Local Vraj Enthusiast clicks button for the 100th time.</div>
+
+    <div id="screen-menu" class="auth-screen">
+        <h1>Vraj Clicker 2</h1>
+        <button class="btn" onclick="showAuth('screen-login')">Login</button>
+        <button class="btn" onclick="showAuth('screen-signup')" style="background:#4834d4">Sign Up</button>
+    </div>
+
+    <div id="screen-login" class="auth-screen hidden">
+        <h3>Login</h3>
+        <input type="email" id="l-email" placeholder="Email">
+        <input type="password" id="l-pass" placeholder="Password">
+        <button class="btn" id="do-login">Login</button>
+        <button onclick="showAuth('screen-menu')" style="background:none; color:#94a3b8; border:none; margin-top:10px; cursor:pointer;">Back</button>
+    </div>
+
+    <div id="screen-signup" class="auth-screen hidden">
+        <h3>Create Account</h3>
+        <input type="text" id="s-user" placeholder="Username">
+        <input type="email" id="s-email" placeholder="Email">
+        <input type="password" id="s-pass" placeholder="Password">
+        <button class="btn" id="do-signup">Sign Up</button>
+        <button onclick="showAuth('screen-menu')" style="background:none; color:#94a3b8; border:none; margin-top:10px; cursor:pointer;">Back</button>
     </div>
 
     <div id="screen-game" class="hidden">
-        
-        <div class="side-panel">
-            <h2 style="color:var(--accent); font-size:1.2rem; border-bottom:1px solid #1e293b; padding-bottom:10px;">VRAJ STORE</h2>
-            <div id="store-list"></div>
+        <div class="panel">
+            <h3>VRAJ UPGRADES</h3>
+            <div id="upgrade-list"></div>
         </div>
-
         <div class="center-area">
-            <div id="score-container">
-                <div id="score-val">0</div>
-                <div id="cps-val">per second: 0</div>
-            </div>
-            
+            <div id="score-display">0</div>
+            <div id="cps-display" style="color:var(--accent); margin-bottom:20px;">per second: 0</div>
             <div id="main-clicker"></div>
-
-            <button id="prestige-btn" class="prestige-btn" onclick="prestige()" disabled>
-                PRESTIGE (Level 0)<br><small>Requires 1 Million Clicks</small>
-            </button>
+            <button onclick="prestige()" id="pres-btn" class="btn" style="width:200px; margin-top:20px; font-size:0.8rem;" disabled>PRESTIGE (1M Required)</button>
         </div>
-
-        <div class="side-panel right-panel">
-            <h2 style="color:var(--gold); font-size:1.2rem; border-bottom:1px solid #1e293b; padding-bottom:10px;">TOP PLAYERS</h2>
+        <div class="panel">
+            <h3>LEADERBOARD</h3>
             <div id="lb-body"></div>
-            
-            <button onclick="logout()" style="margin-top:auto; background:transparent; border:1px solid #ef4444; color:#ef4444; padding:8px; border-radius:8px; cursor:pointer;">Logout</button>
+            <button onclick="logout()" style="margin-top:auto; background:#eb4d4b; border:none; color:white; padding:10px; border-radius:8px; cursor:pointer; width:100%;">Logout</button>
         </div>
-
     </div>
 
     <script type="module">
@@ -158,154 +164,101 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
+        let userData = { score: 0, cps: 0, prestige: 0, name: "", counts: {} };
 
-        let userData = { score: 0, cps: 0, prestige: 0, multiplier: 1, name: "", counts: {} };
-
-        // --- 100 UPGRADE GENERATOR ---
-        const upgradeTypes = ["Finger", "Clicker", "Bot", "Server", "AI", "Clone", "Factory", "Planet", "Galaxy", "Universe"];
-        const items = [];
-        for(let i=1; i<=100; i++) {
-            const type = upgradeTypes[Math.floor((i-1)/10)];
-            items.push({
-                id: 'i'+i,
-                name: `Vraj's ${type} #${i}`,
-                cost: Math.floor(15 * Math.pow(1.3, i-1)),
-                power: (i * 0.5) * Math.pow(1.2, i/5)
+        // 10 Vraj Upgrades that scale up to 100
+        const names = ["Baby Vraj 👶", "Student Vraj 📚", "Worker Vraj 👷", "CEO Vraj 💼", "King Vraj 👑", "Cyber Vraj 🤖", "God Vraj ⚡", "Galaxy Vraj 🌌", "Eternal Vraj ✨", "Omega Vraj 🪐"];
+        const storeItems = [];
+        for(let i=0; i<100; i++) {
+            storeItems.push({
+                id: 'u'+i,
+                name: names[i % 10] + " (Tier " + (Math.floor(i/10)+1) + ")",
+                cost: Math.floor(15 * Math.pow(1.3, i)),
+                power: (i + 1) * Math.pow(1.1, i)
             });
         }
 
-        // --- AUTH ---
-        window.signup = () => {
-            const user = document.getElementById('username').value;
-            const email = document.getElementById('email').value;
-            const pass = document.getElementById('pass').value;
-            if(!user) return alert("Enter a username!");
-            createUserWithEmailAndPassword(auth, email, pass).then(res => {
-                sendEmailVerification(res.user);
-                set(ref(db, 'users/' + res.user.uid), { name: user, score: 0, cps: 0, prestige: 0, multiplier: 1, counts: {} });
-                alert("Verification email sent! Check your inbox.");
-            }).catch(e => alert(e.message));
+        const news = ["Vraj is becoming too powerful.", "Scientists say Vraj clicks are 40% louder today.", "Vraj has been spotted in the cloud.", "Market value of Vraj clicks rises 200%."];
+
+        window.showAuth = (id) => {
+            document.querySelectorAll('.auth-screen').forEach(s => s.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
         };
 
-        window.login = () => {
-            signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('pass').value).catch(e => alert("Login failed"));
+        document.getElementById('do-signup').onclick = () => {
+            const u = document.getElementById('s-user').value;
+            const e = document.getElementById('s-email').value;
+            const p = document.getElementById('s-pass').value;
+            createUserWithEmailAndPassword(auth, e, p).then(res => {
+                sendEmailVerification(res.user);
+                set(ref(db, 'users/' + res.user.uid), { name: u, score: 0, cps: 0, prestige: 0, counts: {} });
+                alert("Verify email then login!");
+            }).catch(err => alert(err.message));
+        };
+
+        document.getElementById('do-login').onclick = () => {
+            signInWithEmailAndPassword(auth, document.getElementById('l-email').value, document.getElementById('l-pass').value).catch(e => alert("Login Error"));
         };
 
         onAuthStateChanged(auth, user => {
-            if (user && user.emailVerified) {
-                document.getElementById('screen-auth').classList.add('hidden');
+            if(user && user.emailVerified) {
+                document.querySelectorAll('.auth-screen').forEach(s => s.classList.add('hidden'));
                 document.getElementById('screen-game').classList.remove('hidden');
-                onValue(ref(db, 'users/' + user.uid), s => {
-                    if(s.exists()) { userData = s.val(); userData.counts = userData.counts || {}; updateUI(); }
-                });
-            }
+                document.getElementById('news-ticker').classList.remove('hidden');
+                onValue(ref(db, 'users/' + user.uid), s => { if(s.exists()){ userData = s.val(); userData.counts = userData.counts || {}; updateUI(); }});
+            } else { showAuth('screen-menu'); }
         });
 
-        // --- GAMEPLAY ---
-        document.getElementById('main-clicker').onclick = (e) => {
-            const clickPower = (1 + (userData.cps * 0.05)) * (userData.multiplier || 1) * Math.pow(2, userData.prestige);
-            userData.score += clickPower;
-            spawnText(e.pageX, e.pageY, `+${Math.floor(clickPower)}`);
+        document.getElementById('main-clicker').onclick = () => {
+            userData.score += (1 + (userData.cps * 0.1)) * Math.pow(2, userData.prestige);
             save();
         };
 
-        window.buyItem = (id) => {
-            const item = items.find(i => i.id === id);
+        window.buy = (id) => {
+            const item = storeItems.find(i => i.id === id);
             const count = userData.counts[id] || 0;
-            const currentCost = Math.floor(item.cost * Math.pow(1.15, count));
-            
-            if(userData.score >= currentCost) {
-                userData.score -= currentCost;
+            const cost = Math.floor(item.cost * Math.pow(1.15, count));
+            if(userData.score >= cost) {
+                userData.score -= cost;
                 userData.counts[id] = count + 1;
-                recalcCPS();
+                let total = 0;
+                storeItems.forEach(si => { total += (si.power * (userData.counts[si.id] || 0)); });
+                userData.cps = total;
                 save();
             }
         };
-
-        function recalcCPS() {
-            let total = 0;
-            items.forEach(item => {
-                total += (item.power * (userData.counts[item.id] || 0));
-            });
-            userData.cps = total;
-        }
 
         window.prestige = () => {
             if(userData.score >= 1000000) {
-                userData.prestige += 1;
-                userData.score = 0;
-                userData.cps = 0;
-                userData.counts = {};
-                save();
-                alert("PRESTIGED! Your click power has doubled permanently.");
+                userData.prestige += 1; userData.score = 0; userData.cps = 0; userData.counts = {};
+                save(); alert("PRESTIGED! Permanent 2x boost added.");
             }
         };
 
-        function save() {
-            if(auth.currentUser) update(ref(db, 'users/' + auth.currentUser.uid), userData);
-        }
+        function save() { if(auth.currentUser) update(ref(db, 'users/' + auth.currentUser.uid), userData); }
 
         function updateUI() {
-            document.getElementById('score-val').innerText = Math.floor(userData.score).toLocaleString();
-            document.getElementById('cps-val').innerText = `per second: ${userData.cps.toFixed(1)}`;
-            
-            // Prestige Check
-            const pBtn = document.getElementById('prestige-btn');
-            pBtn.disabled = userData.score < 1000000;
-            pBtn.innerHTML = `PRESTIGE (Lvl ${userData.prestige})<br><small>${userData.score < 1000000 ? 'Need 1M Clicks' : 'READY TO ASCEND!'}</small>`;
-
-            // Store
-            const list = document.getElementById('store-list');
+            document.getElementById('score-display').innerText = Math.floor(userData.score).toLocaleString();
+            document.getElementById('cps-display').innerText = `per second: ${userData.cps.toFixed(1)}`;
+            document.getElementById('pres-btn').disabled = userData.score < 1000000;
+            const list = document.getElementById('upgrade-list');
             list.innerHTML = "";
-            items.slice(0, (Object.keys(userData.counts).length + 3)).forEach(item => {
+            storeItems.slice(0, Object.keys(userData.counts).length + 3).forEach(item => {
                 const count = userData.counts[item.id] || 0;
                 const cost = Math.floor(item.cost * Math.pow(1.15, count));
-                const isLocked = userData.score < cost && count === 0;
-                
-                list.innerHTML += `
-                    <div class="item-card ${isLocked ? 'locked' : ''}" onclick="buyItem('${item.id}')">
-                        <div class="item-info">
-                            <b>${item.name}</b>
-                            <span>Own: ${count} (+${item.power.toFixed(1)}/s)</span>
-                        </div>
-                        <div class="item-cost">${cost.toLocaleString()}</div>
-                    </div>
-                `;
+                list.innerHTML += `<div class="upgrade-card" onclick="buy('${item.id}')"><div><span class="u-name">${item.name}</span><span class="u-cost">${cost.toLocaleString()} clicks</span></div><div style="font-size:0.7rem;">x${count}</div></div>`;
             });
         }
 
-        function spawnText(x, y, txt) {
-            const el = document.createElement('div');
-            el.className = 'plus-one';
-            el.style.left = x + 'px'; el.style.top = y + 'px';
-            el.innerText = txt;
-            document.body.appendChild(el);
-            setTimeout(() => el.remove(), 800);
-        }
-
-        // Leaderboard
         onValue(query(ref(db, 'users'), orderByChild('score'), limitToLast(10)), s => {
-            const body = document.getElementById('lb-body');
-            body.innerHTML = "";
-            let players = [];
-            s.forEach(c => players.push(c.val()));
-            players.reverse().forEach((p, i) => {
-                body.innerHTML += `
-                    <div class="lb-row ${i==0?'rank-1':''}">
-                        <span>#${i+1} ${p.name}</span>
-                        <span style="color:var(--gold)">${Math.floor(p.score).toLocaleString()}</span>
-                    </div>`;
-            });
+            const b = document.getElementById('lb-body'); b.innerHTML = "";
+            let p = []; s.forEach(c => p.push(c.val()));
+            p.reverse().forEach((u, i) => { b.innerHTML += `<div class="lb-row ${i==0?'top1':''}"><span>#${i+1} ${u.name}</span><span>${Math.floor(u.score).toLocaleString()}</span></div>`; });
         });
 
         window.logout = () => signOut(auth).then(() => location.reload());
-
-        setInterval(() => {
-            if(auth.currentUser?.emailVerified && userData.cps > 0) {
-                userData.score += (userData.cps * 0.1);
-                save();
-            }
-        }, 100);
+        setInterval(() => { if(auth.currentUser?.emailVerified && userData.cps > 0){ userData.score += (userData.cps * 0.1); save(); }}, 1000);
+        setInterval(() => { document.getElementById('news-ticker').innerText = "News: " + news[Math.floor(Math.random()*news.length)]; }, 10000);
     </script>
 </body>
 </html>
