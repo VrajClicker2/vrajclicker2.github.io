@@ -3,126 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vraj Clicker 2 Project</title>
+    <title>Vraj Clicker 2</title>
     <link rel="icon" type="image/png" href="image_0.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-        body { font-family: 'Poppins', sans-serif; background: #0f172a; color: e2e8f0; }
-        
-        /* Glassmorphism style */
+        body { font-family: 'Poppins', sans-serif; background: #0f172a; color: #e2e8f0; }
         .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        
-        /* Clicker button mechanics */
         .click-btn-container { transition: transform 0.05s active; cursor: pointer; }
         .click-btn-container:active { transform: scale(0.97); }
         .click-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; pointer-events: none; }
-
-        /* Utility classes */
         .hidden { display: none !important; }
-        /* Disable selection and right click in game area */
         .no-select { -webkit-user-select: none; -ms-user-select: none; user-select: none; }
-        
-        /* Custom Scrollbar for chat */
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
-        ::-webkit-scrollbar-thumb { background: rgba(59, 130, 246, 0.5); rounded: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(59, 130, 246, 0.5); border-radius: 4px; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
     <div id="main-content" class="flex-grow flex items-center justify-center p-4">
-        
         <div id="auth-container" class="glass p-8 rounded-3xl shadow-2xl w-full max-w-md">
             <h1 class="text-4xl font-extrabold text-center mb-8 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">Vraj Clicker 2</h1>
             
             <div id="auth-tabs" class="flex mb-6 bg-gray-800/50 rounded-lg p-1">
-                <button onclick="switchTab('login')" id="tab-login" class="flex-1 py-2 rounded-md font-semibold bg-blue-600 transition-all">Login</button>
-                <button onclick="switchTab('signup')" id="tab-signup" class="flex-1 py-2 rounded-md font-semibold text-gray-400 hover:text-white transition-all">Sign Up</button>
+                <button onclick="switchTab('login')" id="tab-login" class="flex-1 py-2 rounded-md font-semibold bg-blue-600">Login</button>
+                <button onclick="switchTab('signup')" id="tab-signup" class="flex-1 py-2 rounded-md font-semibold text-gray-400">Sign Up</button>
             </div>
 
             <div id="signup-form" class="hidden space-y-4">
-                <input type="text" id="su-username" placeholder="Choose a Username" class="w-full p-4 rounded-xl bg-gray-900/50 border border-gray-700 focus:border-blue-500 outline-none">
-                <input type="email" id="su-email" placeholder="Email Address" class="w-full p-4 rounded-xl bg-gray-900/50 border border-gray-700 focus:border-blue-500 outline-none">
-                <input type="password" id="su-password" placeholder="Password (6+ chars)" class="w-full p-4 rounded-xl bg-gray-900/50 border border-gray-700 focus:border-blue-500 outline-none">
-                <button onclick="handleSignup()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 p-4 rounded-xl font-bold text-lg shadow-lg">Create Account</button>
+                <input type="text" id="su-username" placeholder="Username" class="w-full p-4 rounded-xl bg-gray-900/50 border border-gray-700 outline-none">
+                <input type="email" id="su-email" placeholder="Email" class="w-full p-4 rounded-xl bg-gray-900/50 border border-gray-700 outline-none">
+                <input type="password" id="su-password" placeholder="Password" class="w-full p-4 rounded-xl bg-gray-900/50 border border-gray-700 outline-none">
+                <button onclick="handleSignup()" class="w-full bg-emerald-600 p-4 rounded-xl font-bold">Create Account</button>
             </div>
 
-             <div id="login-form" class="space-y-4">
-                <input type="email" id="li-email" placeholder="Email Address" class="w-full p-4 rounded-xl bg-gray-900/50 border border-gray-700 focus:border-blue-500 outline-none">
-                <input type="password" id="li-password" placeholder="Password" class="w-full p-4 rounded-xl bg-gray-900/50 border border-gray-700 focus:border-blue-500 outline-none">
-                <button onclick="handleLogin()" class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 p-4 rounded-xl font-bold text-lg shadow-lg">Enter Game</button>
-                
-                <div class="relative flex py-3 items-center">
-                    <div class="flex-grow border-t border-gray-700"></div><span class="flex-shrink mx-4 text-gray-500">or</span><div class="flex-grow border-t border-gray-700"></div>
-                </div>
-                <button onclick="handleGuest()" class="w-full bg-gray-700 hover:bg-gray-600 p-4 rounded-xl font-bold">Play as Guest</button>
+            <div id="login-form" class="space-y-4">
+                <input type="email" id="li-email" placeholder="Email" class="w-full p-4 rounded-xl bg-gray-900/50 border border-gray-700 outline-none">
+                <input type="password" id="li-password" placeholder="Password" class="w-full p-4 rounded-xl bg-gray-900/50 border border-gray-700 outline-none">
+                <button onclick="handleLogin()" class="w-full bg-blue-600 p-4 rounded-xl font-bold">Enter Game</button>
+                <button onclick="handleGuest()" class="w-full bg-gray-700 p-4 rounded-xl font-bold">Play as Guest</button>
             </div>
 
             <div id="verify-notice" class="hidden text-center py-8">
-                 <div class="text-6xl mb-4">📧</div>
                 <h2 class="text-xl font-bold text-yellow-400 mb-2">Verify your Email</h2>
-                <p class="mb-6 text-gray-300">We sent a link to your inbox. Please verify it to play.</p>
-                <button onclick="location.reload()" class="text-blue-400 underline hover:text-blue-300">I've verified, refresh!</button>
-                <br><br>
-                <button onclick="logoutConfirm()" class="text-red-400 text-sm">Go back (Logout)</button>
+                <p class="mb-6">Please check your inbox. You must verify to save progress.</p>
+                <button onclick="location.reload()" class="text-blue-400 underline">Refresh after verifying</button>
             </div>
         </div>
 
         <div id="game-container" class="hidden w-full max-w-6xl flex flex-col md:flex-row gap-6 p-4 no-select" oncontextmenu="return false;">
-            
             <div class="glass p-8 rounded-3xl flex-1 text-center flex flex-col items-center justify-center min-h-[400px]">
                  <div class="mb-6">
-                    <h2 class="text-6xl font-extrabold text-blue-400 leading-tight" id="score">0</h2>
-                    <p class="text-gray-500 uppercase tracking-widest font-semibold">Vraj Points</p>
+                    <h2 class="text-6xl font-extrabold text-blue-400" id="score">0</h2>
+                    <p class="text-gray-500 uppercase tracking-widest">Vraj Points</p>
                 </div>
-                
-                <div onclick="clickVraj()" class="click-btn-container w-56 h-56 rounded-full p-1 bg-gradient-to-tr from-blue-500 to-purple-600 shadow-[0_0_60px_rgba(59,130,246,0.3)]">
+                <div onclick="clickVraj()" class="click-btn-container w-56 h-56 rounded-full p-1 bg-gradient-to-tr from-blue-500 to-purple-600">
                     <div class="w-full h-full rounded-full overflow-hidden border-4 border-[#0f172a]">
-                         <img src="image_0.png" alt="Click Vraj" class="click-img">
+                        <img src="image_0.png" class="click-img">
                     </div>
                 </div>
-
                 <div class="mt-8 text-sm text-gray-400 bg-gray-900/50 py-2 px-4 rounded-full">
-                    Playing as: <span id="user-display" class="font-bold text-blue-300">Loading...</span>
+                    User: <span id="user-display" class="font-bold text-blue-300">...</span>
                 </div>
             </div>
 
-            <div class="flex-1 flex flex-col gap-6 h-[500px] md:h-auto">
-                
-                <div class="glass p-4 rounded-3xl flex-1 overflow-hidden flex flex-col">
-                    <h3 class="text-xl font-bold text-center mb-2 text-purple-300">🏆 Top Clickers</h3>
-                     <div class="overflow-y-auto flex-grow pr-2" id="leaderboard-list">
-                        <p class="text-center text-gray-500 animate-pulse">Loading scores...</p>
-                        </div>
+            <div class="flex-1 flex flex-col gap-6">
+                <div class="glass p-4 rounded-3xl flex-1 overflow-hidden flex flex-col min-h-[250px]">
+                    <h3 class="font-bold text-purple-300 mb-2">🏆 Leaderboard</h3>
+                     <div class="overflow-y-auto flex-grow" id="leaderboard-list"></div>
                 </div>
-
-                <div class="glass p-4 rounded-3xl flex-1 overflow-hidden flex flex-col">
-                    <h3 class="text-xl font-bold text-center mb-2 text-emerald-300">💬 Global Chat</h3>
-                    <div id="chat-box" class="flex-grow overflow-y-auto mb-2 p-2 bg-gray-900/30 rounded-xl flex flex-col-reverse space-y-reverse space-y-2">
-                        </div>
+                <div class="glass p-4 rounded-3xl flex-1 overflow-hidden flex flex-col min-h-[250px]">
+                    <h3 class="font-bold text-emerald-300 mb-2">💬 Chat</h3>
+                    <div id="chat-box" class="flex-grow overflow-y-auto mb-2 p-2 bg-gray-900/30 rounded-xl flex flex-col-reverse space-y-reverse space-y-2"></div>
                     <form id="chat-form" class="flex gap-2">
-                        <input type="text" id="chat-input" placeholder="Say something..." autocomplete="off" class="flex-grow p-2 rounded-lg bg-gray-900/50 border border-gray-700 focus:border-emerald-500 outline-none text-sm">
-                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 px-4 rounded-lg font-bold">Send</button>
+                        <input type="text" id="chat-input" placeholder="Chat..." class="flex-grow p-2 rounded-lg bg-gray-900 border border-gray-700 outline-none text-sm">
+                        <button class="bg-emerald-600 px-4 rounded-lg font-bold">Send</button>
                     </form>
                 </div>
-
             </div>
         </div>
     </div>
 
     <div id="game-footer" class="hidden p-4 text-center glass fixed bottom-0 w-full z-10">
-        <button onclick="logoutConfirm()" class="bg-red-900/50 hover:bg-red-800/80 text-red-300 px-6 py-2 rounded-full text-sm font-bold transition-all border border-red-800/50">Exit Game (Logout)</button>
+        <button onclick="logoutConfirm()" class="text-red-400 font-bold">Logout</button>
     </div>
 
-
     <script type="module">
-        // Import necessary Firebase modules (Auth AND Firestore now)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInAnonymously, onAuthStateChanged, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, addDoc, collection, query, orderBy, limit, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // --- Configuration ---
         const firebaseConfig = {
              apiKey: "AIzaSyDwg2ZSpQspAD-o19AZCOHcrl9VnYc_sdk",
              authDomain: "vraj-clicker-2.firebaseapp.com",
@@ -133,241 +103,137 @@
              measurementId: "G-SBJ4W7JRRL"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Global State Variables
         let currentUser = null;
         let currentUsername = "Guest";
         let score = 0;
-        let scoreSaveTimer = null;
+        let saveInterval = null;
 
-        // ================= AUTHENTICATION LOGIC =================
-
-        // Tab switcher for UI
+        // AUTH FUNCTIONS
         window.switchTab = (tab) => {
             document.getElementById('login-form').classList.toggle('hidden', tab !== 'login');
             document.getElementById('signup-form').classList.toggle('hidden', tab !== 'signup');
             document.getElementById('tab-login').classList.toggle('bg-blue-600', tab === 'login');
-            document.getElementById('tab-login').classList.toggle('text-gray-400', tab !== 'login');
             document.getElementById('tab-signup').classList.toggle('bg-blue-600', tab === 'signup');
-            document.getElementById('tab-signup').classList.toggle('text-gray-400', tab !== 'signup');
-        }
+        };
 
-        // Handle Sign Up (Create Auth User + Firestore User Profile)
         window.handleSignup = async () => {
-            const username = document.getElementById('su-username').value.trim();
+            const user = document.getElementById('su-username').value;
             const email = document.getElementById('su-email').value;
             const pass = document.getElementById('su-password').value;
-
-            if(!username || username.length < 3) return alert("Username must be 3+ chars");
-
             try {
-                // 1. Create Auth User
-                const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-                const user = userCredential.user;
-
-                // 2. Create Firestore Profile (to store username)
-                await setDoc(doc(db, "users", user.uid), {
-                    username: username,
-                    email: email,
-                    createdAt: serverTimestamp()
-                });
-
-                // 3. Send Verification
-                await sendEmailVerification(user);
-                alert("Account created! Please check your email to verify.");
-                window.location.reload(); // Reload to show verification screen
-
+                const cred = await createUserWithEmailAndPassword(auth, email, pass);
+                await setDoc(doc(db, "users", cred.user.uid), { username: user });
+                await sendEmailVerification(cred.user);
+                alert("Verify your email then log in!");
+                location.reload();
             } catch (e) { alert(e.message); }
         };
 
         window.handleLogin = async () => {
-            try {
-                await signInWithEmailAndPassword(auth, document.getElementById('li-email').value, document.getElementById('li-password').value);
-            } catch (e) { alert(e.message); }
+            try { await signInWithEmailAndPassword(auth, document.getElementById('li-email').value, document.getElementById('li-password').value); }
+            catch (e) { alert(e.message); }
         };
 
-        window.handleGuest = async () => {
-            try { await signInAnonymously(auth); } catch (e) { alert(e.message); }
-        };
+        window.handleGuest = async () => { await signInAnonymously(auth); };
 
-        // New Logout with confirmation
         window.logoutConfirm = () => {
-            if(confirm("Are you sure you would like to logout? Progress isn't saved automatically yet!")) {
-                 // Try to save score one last time before quitting if logged in
-                 if(currentUser && !currentUser.isAnonymous) saveScoreToFirestore();
-                 signOut(auth);
+            if(confirm("Are you sure you would like to logout?")) {
+                saveScore();
+                signOut(auth);
+            }
+        };
+
+        // SAVE & LOAD LOGIC
+        async function loadUserScore(uid) {
+            const docSnap = await getDoc(doc(db, "leaderboard", uid));
+            if (docSnap.exists()) {
+                score = docSnap.data().score || 0;
+                document.getElementById('score').innerText = score;
             }
         }
 
+        async function saveScore() {
+            if(!currentUser || currentUser.isAnonymous || !currentUser.emailVerified) return;
+            await setDoc(doc(db, "leaderboard", currentUser.uid), {
+                score: score,
+                username: currentUsername,
+                lastUpdated: serverTimestamp()
+            }, { merge: true });
+        }
 
-        // ================= GAME LOGIC =================
+        // Save progress if the user closes the tab
+        window.addEventListener('beforeunload', (e) => {
+            if(currentUser) saveScore();
+        });
 
-        // The Click Action
+        // CLICKER
         window.clickVraj = () => {
             score++;
             document.getElementById('score').innerText = score;
-            // Debounced saving: Save to Firestore every 5 seconds if clicking continuously
-            if(currentUser && !currentUser.isAnonymous && !scoreSaveTimer) {
-                 scoreSaveTimer = setTimeout(() => {
-                    saveScoreToFirestore();
-                    scoreSaveTimer = null;
-                 }, 5000);
-            }
         };
 
-        // Save score to Firestore (Leaderboard)
-        async function saveScoreToFirestore() {
-            if(!currentUser || currentUser.isAnonymous) return;
-            try {
-                const userRef = doc(db, "leaderboard", currentUser.uid);
-                // merge: true makes sure we don't overwrite existing data, just update the score
-                await setDoc(userRef, {
-                    score: score,
-                    username: currentUsername
-                }, { merge: true });
-                console.log("Score saved automatically.");
-            } catch (e) { console.error("Error saving score:", e); }
-        }
-
-        // Load initial score (optional - currently starts at 0 every session)
-        async function loadInitialData(uid) {
-            const docRef = doc(db, "leaderboard", uid);
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-                // Uncomment below if you want score to persist across sessions
-                // score = docSnap.data().score || 0; 
-                // document.getElementById('score').innerText = score;
-            }
-        }
-
-
-        // ================= CHAT & LEADERBOARD LISTENERS =================
-
-        // Setup Real-time Listeners (runs when logged in)
-        function setupGameListeners(user) {
-            // --- 1. Leaderboard Listener ---
-            const leaderboardQuery = query(collection(db, "leaderboard"), orderBy("score", "desc"), limit(10));
-            onSnapshot(leaderboardQuery, (snapshot) => {
-                const list = document.getElementById('leaderboard-list');
-                list.innerHTML = ""; // Clear current list
-                let rank = 1;
-                snapshot.forEach((doc) => {
-                    const data = doc.data();
-                    const isMe = doc.id === user.uid ? "bg-blue-900/30 border-blue-500/50" : "bg-gray-800/30 border-transparent";
-                    list.innerHTML += `
-                        <div class="flex justify-between items-center p-2 mb-1 rounded-lg border ${isMe} text-sm">
-                            <div><span class="font-bold text-purple-400 mr-2">#${rank}</span> ${data.username}</div>
-                            <div class="font-bold text-blue-300">${data.score}</div>
-                        </div>
-                    `;
-                    rank++;
-                });
-                if(snapshot.empty) list.innerHTML = "<p class='text-center text-gray-500'>No scores yet.</p>";
-            });
-
-             // --- 2. Chat Listener ---
-            const chatQuery = query(collection(db, "globalChat"), orderBy("timestamp", "desc"), limit(30));
-            onSnapshot(chatQuery, (snapshot) => {
-                const chatBox = document.getElementById('chat-box');
-                chatBox.innerHTML = ""; // Clear chat box
-                snapshot.forEach((doc) => {
-                    const msg = doc.data();
-                    // Ensure it's a valid message
-                    if(msg.text && msg.username) {
-                        chatBox.innerHTML += `
-                        <div class="bg-gray-800/50 p-2 rounded-lg text-sm break-words">
-                            <span class="font-bold text-emerald-400">${msg.username}:</span> <span class="text-gray-200">${msg.text}</span>
-                        </div>`;
-                    }
-                });
-            });
-        }
-
-        // Send Chat Message
-        document.getElementById('chat-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const input = document.getElementById('chat-input');
-            const text = input.value.trim();
-            if(!text || !currentUser) return;
-            
-            try {
-                await addDoc(collection(db, "globalChat"), {
-                    text: text,
-                    username: currentUsername,
-                    uid: currentUser.uid,
-                    timestamp: serverTimestamp()
-                });
-                input.value = ""; // Clear input
-            } catch(e) { console.error("Chat error:", e); }
-        });
-
-
-        // ================= MAIN AUTH STATE OBSERVER =================
+        // STATE OBSERVER
         onAuthStateChanged(auth, async (user) => {
             currentUser = user;
-            const authContainer = document.getElementById('auth-container');
-            const gameContainer = document.getElementById('game-container');
-            const gameFooter = document.getElementById('game-footer');
-            const verifyNotice = document.getElementById('verify-notice');
-            const authTabs = document.getElementById('auth-tabs');
-            const loginForm = document.getElementById('login-form');
-            const signupForm = document.getElementById('signup-form');
-
-            // Reset state on login status change
-            score = 0;
-            document.getElementById('score').innerText = 0;
-
             if (user) {
-                // Logged in. Check verification.
                 if (!user.isAnonymous && !user.emailVerified) {
-                    // Show Verification Screen
-                    authContainer.classList.remove('hidden');
-                    gameContainer.classList.add('hidden');
-                    gameFooter.classList.add('hidden');
-                    authTabs.classList.add('hidden');
-                    loginForm.classList.add('hidden');
-                    signupForm.classList.add('hidden');
-                    verifyNotice.classList.remove('hidden');
+                    document.getElementById('verify-notice').classList.remove('hidden');
+                    document.getElementById('login-form').classList.add('hidden');
                 } else {
-                    // GAMETIME: User Verified OR Guest
-                    authContainer.classList.add('hidden');
-                    gameContainer.classList.remove('hidden');
-                    gameFooter.classList.remove('hidden');
-
-                    // Determine Username
+                    document.getElementById('auth-container').classList.add('hidden');
+                    document.getElementById('game-container').classList.remove('hidden');
+                    document.getElementById('game-footer').classList.remove('hidden');
+                    
                     if(user.isAnonymous) {
-                        currentUsername = "Guest_" + user.uid.substring(0,5);
+                        currentUsername = "Guest_" + user.uid.substring(0,4);
                     } else {
-                        // Fetch username from Firestore profile
-                        const userSnap = await getDoc(doc(db, "users", user.uid));
-                        if(userSnap.exists()) {
-                            currentUsername = userSnap.data().username;
-                        } else {
-                            currentUsername = user.email.split('@')[0]; // Fallback
-                        }
-                        // Optionally load previous score
-                        // loadInitialData(user.uid);
+                        const uSnap = await getDoc(doc(db, "users", user.uid));
+                        currentUsername = uSnap.exists() ? uSnap.data().username : "User";
+                        await loadUserScore(user.uid); // LOAD PROGRESS HERE
+                        // Start Auto-Save every 10 seconds
+                        saveInterval = setInterval(saveScore, 10000);
                     }
                     document.getElementById('user-display').innerText = currentUsername;
-                    
-                    // Start Listeners
-                    setupGameListeners(user);
+                    setupListeners();
                 }
             } else {
-                // LOGGED OUT STATE
-                authContainer.classList.remove('hidden');
-                gameContainer.classList.add('hidden');
-                gameFooter.classList.add('hidden');
-                authTabs.classList.remove('hidden');
-                verifyNotice.classList.add('hidden');
-                // Reset to login tab view
-                switchTab('login'); 
+                location.reload(); // Simplest way to reset state on logout
             }
         });
+
+        function setupListeners() {
+            // Leaderboard
+            onSnapshot(query(collection(db, "leaderboard"), orderBy("score", "desc"), limit(10)), (s) => {
+                const list = document.getElementById('leaderboard-list');
+                list.innerHTML = s.docs.map((d, i) => `
+                    <div class="flex justify-between p-2 mb-1 rounded bg-gray-800/50 text-sm">
+                        <span>#${i+1} ${d.data().username}</span>
+                        <span class="font-bold text-blue-400">${d.data().score}</span>
+                    </div>`).join('');
+            });
+            // Chat
+            onSnapshot(query(collection(db, "globalChat"), orderBy("timestamp", "desc"), limit(20)), (s) => {
+                document.getElementById('chat-box').innerHTML = s.docs.map(d => `
+                    <div class="text-sm"><span class="text-emerald-400 font-bold">${d.data().username}:</span> ${d.data().text}</div>
+                `).join('');
+            });
+        }
+
+        document.getElementById('chat-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('chat-input');
+            if(!input.value.trim()) return;
+            await addDoc(collection(db, "globalChat"), {
+                text: input.value,
+                username: currentUsername,
+                timestamp: serverTimestamp()
+            });
+            input.value = "";
+        };
     </script>
 </body>
 </html>
