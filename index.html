@@ -27,19 +27,18 @@
         .float-text { position: absolute; color: #60a5fa; font-weight: 800; pointer-events: none; animation: floatUp 0.8s ease-out forwards; z-index: 100; }
         @keyframes floatUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-100px); opacity: 0; } }
 
-        /* Golden Vraj */
         .golden-vraj { position: absolute; width: 80px; height: 80px; cursor: pointer; z-index: 50; filter: drop-shadow(0 0 15px gold) brightness(1.5); animation: goldenFly 10s linear forwards; }
         @keyframes goldenFly { 0% { left: -100px; top: 20%; } 100% { left: 110vw; top: 60%; } }
     </style>
 </head>
 <body class="no-select">
 
-    <div id="multiplier-display" class="fixed top-4 left-4 z-[60] hidden">
-        <div class="glass p-3 rounded-2xl border-yellow-500/50 border flex items-center gap-3">
-            <span class="text-2xl">🌟</span>
+    <div id="multiplier-display" class="fixed bottom-6 right-6 z-[60] hidden">
+        <div class="glass p-4 rounded-2xl border-yellow-500/50 border flex items-center gap-3 shadow-2xl">
+            <span class="text-3xl">🌟</span>
             <div>
-                <p class="text-xs font-bold text-yellow-400">2X MULTIPLIER</p>
-                <p id="mult-timer" class="text-lg font-black text-white">03:00</p>
+                <p class="text-xs font-bold text-yellow-400 tracking-tighter">2X MULTIPLIER ACTIVE</p>
+                <p id="mult-timer" class="text-xl font-black text-white">03:00</p>
             </div>
         </div>
     </div>
@@ -144,6 +143,11 @@
         let multiplier = 1, multTimeRemaining = 0;
         let currentUser = null, currentUsername = "Guest";
 
+        // --- ANTI-AUTO CLICKER REFINED ---
+        let lastClickTime = 0;
+        let clickIntervals = [];
+        let hasWarned = false;
+
         const upgradeData = [
             { name: "Vraj Finger", baseCost: 10, basePower: 0.2, emoji: "☝️" },
             { name: "Vraj Sprout", baseCost: 20, basePower: 0.4, emoji: "🌱" },
@@ -160,7 +164,7 @@
             { name: "Vraj Tuner", baseCost: 5645, basePower: 150, emoji: "🎚️" },
             { name: "Vraj Garden", baseCost: 9032, basePower: 170, emoji: "🌿" },
             { name: "Vraj Typist", baseCost: 14451, basePower: 200, emoji: "💻" },
-            { name: "Vraj Epstien", baseCost: 23122, basePower: 250, emoji: "👶👨🏼‍🦳" },
+            { name: "Vraj Swarm", baseCost: 23122, basePower: 250, emoji: "🐝" },
             { name: "Vraj Automaton", baseCost: 36995, basePower: 280, emoji: "🤖" },
             { name: "Vraj Attractor", baseCost: 59192, basePower: 296, emoji: "🧲" },
             { name: "Vraj Smoothie", baseCost: 94707, basePower: 474, emoji: "🥤" },
@@ -197,13 +201,7 @@
 
         const upgrades = [];
         for(let i=0; i<50; i++) {
-            let base = upgradeData[i] || { 
-                name: "Vraj Galaxy T-" + (i+1), 
-                baseCost: Math.floor(upgrades[i-1].cost * 6), 
-                basePower: Math.floor(upgrades[i-1].power * 7), 
-                emoji: "🌌" 
-            };
-            // Every second upgrade is a PPC upgrade
+            let base = upgradeData[i] || { name: "Vraj Galaxy T-" + (i+1), baseCost: Math.floor(upgrades[i-1].cost * 6), basePower: Math.floor(upgrades[i-1].power * 7), emoji: "🌌" };
             const isClickUpgrade = (i + 1) % 2 === 0;
             upgrades.push({ id: i+1, name: base.name, cost: base.baseCost, power: base.basePower, emoji: base.emoji, owned: 0, isClickUpgrade });
         }
@@ -226,11 +224,7 @@
             const cost = getBulkCost(upg.cost, bulkAmount);
             if (score >= cost) {
                 score -= cost;
-                if (upg.isClickUpgrade) {
-                    ppc += (upg.power * bulkAmount);
-                } else {
-                    vps += (upg.power * bulkAmount);
-                }
+                if (upg.isClickUpgrade) { ppc += (upg.power * bulkAmount); } else { vps += (upg.power * bulkAmount); }
                 upg.owned += bulkAmount;
                 for(let i=0; i<bulkAmount; i++) { upg.cost = Math.ceil(upg.cost * 1.15); }
                 updateUI(); playSfx();
@@ -238,6 +232,35 @@
         };
 
         window.clickVraj = (e) => {
+            const now = Date.now();
+            
+            // Detection Logic
+            if (lastClickTime !== 0) {
+                const diff = now - lastClickTime;
+                clickIntervals.push(diff);
+                if (clickIntervals.length > 30) {
+                    clickIntervals.shift();
+                    
+                    // Check for consistent timing (Bot behavior)
+                    const avg = clickIntervals.reduce((a,b) => a+b) / clickIntervals.length;
+                    const variance = clickIntervals.reduce((a,b) => a + Math.pow(b - avg, 2), 0) / clickIntervals.length;
+
+                    // If timing is perfectly consistent (low variance), trigger anti-cheat
+                    if (variance < 6) { // Humans can't maintain < 6ms variance over 30 clicks
+                        if (!hasWarned) {
+                            alert("⚠️ ANTI-CHEAT: Suspiciously consistent clicking detected. Stop the auto-clicker or you will be logged out.");
+                            hasWarned = true;
+                            clickIntervals = [];
+                        } else {
+                            // Instant logout
+                            signOut(auth).then(() => { location.reload(); });
+                            return;
+                        }
+                    }
+                }
+            }
+            lastClickTime = now;
+
             const gain = ppc * multiplier;
             score += gain; playSfx(); updateUI();
             const text = document.createElement('div');
@@ -254,18 +277,14 @@
             const golden = document.createElement('img');
             golden.src = 'image_0.png';
             golden.className = 'golden-vraj';
-            golden.onclick = (e) => {
-                e.stopPropagation();
-                activateMultiplier();
-                golden.remove();
-            };
+            golden.onclick = (e) => { e.stopPropagation(); activateMultiplier(); golden.remove(); };
             document.body.appendChild(golden);
-            setTimeout(() => golden.remove(), 10000);
+            setTimeout(() => { if(golden) golden.remove(); }, 10000);
         }
 
         function activateMultiplier() {
             multiplier = 2;
-            multTimeRemaining = 180; // 3 minutes
+            multTimeRemaining = 180;
             document.getElementById('multiplier-display').classList.remove('hidden');
         }
 
@@ -275,18 +294,16 @@
                 const mins = Math.floor(multTimeRemaining / 60);
                 const secs = multTimeRemaining % 60;
                 document.getElementById('mult-timer').innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
-                if (multTimeRemaining === 0) {
-                    multiplier = 1;
-                    document.getElementById('multiplier-display').classList.add('hidden');
-                }
+                if (multTimeRemaining === 0) { multiplier = 1; document.getElementById('multiplier-display').classList.add('hidden'); }
             }
             if (Math.random() < 0.005) spawnGoldenVraj();
         }, 1000);
 
         function updateUI() {
             document.getElementById('score').innerText = Math.floor(score).toLocaleString();
-            document.getElementById('vps-display').innerText = (vps * multiplier).toFixed(1).toLocaleString() + " VPS";
+            document.getElementById('vps-display').innerText = (vps * multiplier).toLocaleString(undefined, {minimumFractionDigits: 1}) + " VPS";
             document.getElementById('ppc-display').innerText = (ppc * multiplier).toLocaleString() + " Points Per Click";
+            
             upgrades.forEach(u => {
                 const el = document.getElementById(`upg-${u.id}`);
                 const bCost = getBulkCost(u.cost, bulkAmount);
@@ -306,10 +323,7 @@
                 <div id="upg-${u.id}" onclick="buyUpgrade(${u.id})" class="upgrade-card glass p-4 rounded-2xl flex justify-between items-center disabled">
                     <div class="flex items-center gap-3">
                         <span class="text-2xl">${u.emoji}</span>
-                        <div>
-                            <p class="font-bold text-sm text-white">${u.name}</p>
-                            <p class="text-[10px] text-emerald-400" id="power-label-${u.id}"></p>
-                        </div>
+                        <div><p class="font-bold text-sm text-white">${u.name}</p><p class="text-[10px] text-emerald-400" id="power-label-${u.id}"></p></div>
                     </div>
                     <div class="text-right">
                         <p class="text-xs font-bold text-blue-300" id="cost-${u.id}">${u.cost.toLocaleString()}</p>
@@ -333,7 +347,7 @@
         };
         window.handleLogin = async () => { try { await signInWithEmailAndPassword(auth, document.getElementById('li-email').value, document.getElementById('li-password').value); } catch (err) { alert(err.message); } };
         window.handleGuest = () => signInAnonymously(auth);
-        window.logoutAction = () => { if(confirm("Logout?")) signOut(auth); };
+        window.logoutAction = () => { signOut(auth); };
 
         onAuthStateChanged(auth, async (user) => {
             currentUser = user;
