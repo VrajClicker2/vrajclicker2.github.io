@@ -38,7 +38,7 @@
         body.theme-starry { --bg-main: #000000; --text-main: #ffffff; --accent: #6366f1; --panel-bg: rgba(0, 0, 0, 0.9); }
         
         /* Milky Way Theme Overrides */
-        body.theme-milkyway { --bg-main: #000000; --text-main: #ffffff; --accent: #a855f7; --glass: rgba(0, 0, 0, 0.3); --border: rgba(168, 85, 247, 0.3); --panel-bg: rgba(0, 0, 0, 0.6); }
+        body.theme-milkyway { --bg-main: #000000; --text-main: #ffffff; --accent: #a855f7; --glass: rgba(0, 0, 0, 0.3); --border: rgba(168, 85, 247, 0.3); --panel-bg: rgba(0, 0, 0, 0.3); }
         .theme-milkyway .glass { border-color: rgba(168, 85, 247, 0.4); box-shadow: 0 0 20px rgba(124, 58, 237, 0.15); }
         .theme-milkyway .prestige-btn, 
         .theme-milkyway .bulk-btn.active, 
@@ -49,17 +49,13 @@
             border: 1px solid #c084fc;
         }
         .theme-milkyway #score { text-shadow: 0 0 20px rgba(168, 85, 247, 0.8); }
-        
-        /* Milky Way specific glow for clicker */
+        .theme-milkyway .lb-card, .theme-milkyway .upgrade-card, .theme-milkyway .ach-card { 
+            background: rgba(0, 0, 0, 0.2) !important; 
+            border-color: rgba(168, 85, 247, 0.2); 
+        }
         .theme-milkyway .click-btn-container {
             box-shadow: 0 0 30px rgba(168, 85, 247, 0.6), 0 0 60px rgba(124, 58, 237, 0.4), inset 0 0 20px rgba(168, 85, 247, 0.2);
             border-color: rgba(168, 85, 247, 0.8) !important;
-        }
-
-        /* Milky Way Leaderboard Transparency Fix */
-        .theme-milkyway .lb-card {
-            background: rgba(0, 0, 0, 0.2) !important; 
-            border-color: rgba(168, 85, 247, 0.2);
         }
 
         body { font-family: 'Poppins', sans-serif; background: var(--bg-main); color: var(--text-main); margin: 0; height: 100vh; width: 100vw; overflow: hidden; transition: background 0.8s ease, color 0.5s ease; }
@@ -78,8 +74,28 @@
         #theme-overlay { position: fixed; inset: 0; pointer-events: none !important; z-index: 1; overflow: hidden; }
         .particle { position: absolute; pointer-events: none !important; will-change: transform; user-select: none; }
 
+        /* Ascension Tree Container */
+        #ascension-tree-view {
+            position: fixed; inset: 0; z-index: 0; 
+            background: radial-gradient(circle at center, #1a0b2e 0%, #000000 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 1s ease;
+        }
+        #ascension-tree-view.active { opacity: 1; pointer-events: auto; z-index: 2000; }
+
+        /* Screen Fall Animation */
+        .screen-falling {
+            animation: crackAndFall 1.5s cubic-bezier(0.5, 0, 0.2, 1) forwards;
+            pointer-events: none !important;
+        }
+        @keyframes crackAndFall {
+            0% { transform: translateY(0) rotate(0); opacity: 1; }
+            20% { transform: translateY(50px) rotate(-2deg); opacity: 1; }
+            100% { transform: translateY(120vh) rotate(5deg); opacity: 0; }
+        }
+
         /* Responsive Grid */
-        .game-grid { display: grid; grid-template-columns: 350px 1fr 350px; grid-template-rows: 1fr; height: 100vh; gap: 1.5rem; padding: 1.5rem; box-sizing: border-box; position: relative; z-index: 10; }
+        .game-grid { display: grid; grid-template-columns: 350px 1fr 350px; grid-template-rows: 1fr; height: 100vh; gap: 1.5rem; padding: 1.5rem; box-sizing: border-box; position: relative; z-index: 10; transition: opacity 0.5s; }
         @media (max-width: 1200px) { .game-grid { grid-template-columns: 300px 1fr 300px; gap: 1rem; padding: 1rem; } }
         @media (max-width: 1024px) {
             .game-grid { display: flex; flex-direction: column; overflow-y: auto; height: 100vh; }
@@ -100,14 +116,13 @@
         .side-tabs-container { position: absolute; right: -32px; top: 50px; display: flex; flex-direction: column; gap: 10px; z-index: 20; }
         .side-tab { border: 1px solid var(--border); border-left: none; padding: 15px 8px; border-radius: 0 12px 12px 0; cursor: pointer; writing-mode: vertical-lr; text-orientation: mixed; font-size: 10px; font-weight: 800; transition: all 0.2s; }
         
-        /* Main Clicker Styles */
         .click-btn-container { 
             transition: transform 0.05s active, background 0.5s ease; 
             cursor: pointer; 
             user-select: none; 
             position: relative; 
             background: var(--accent) !important; 
-            box-shadow: 0 0 25px rgba(168, 85, 247, 0.4); /* Purple Glow Default */
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.4); 
         }
         .click-btn-container:active { transform: scale(0.95); }
         .click-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; pointer-events: none; }
@@ -123,7 +138,6 @@
         
         .bulk-btn.active, .shop-tab-btn.active, .style-tab-btn.active { background: var(--accent); color: white; }
         
-        /* Floating Text - Slower (3s) and Bigger (2rem) */
         .float-text { 
             position: absolute; 
             color: var(--accent); 
@@ -138,45 +152,37 @@
         .golden-vraj { position: absolute; width: 80px; height: 80px; cursor: pointer; z-index: 50; filter: drop-shadow(0 0 15px gold) brightness(1.5); animation: goldenFly 10s linear forwards; }
         @keyframes goldenFly { 0% { left: -100px; top: 20%; } 100% { left: 110vw; top: 60%; } }
         
-        /* Fixed Prestige Button Gradient */
         .prestige-btn { 
             background: linear-gradient(135deg, var(--accent), #7c3aed); 
             border: 2px solid rgba(255,255,255,0.2); 
             transition: all 0.3s ease;
         }
         
-        /* Leaderboard Medals */
         .lb-card { background: var(--glass); border: 1px solid var(--border); border-radius: 12px; }
         .lb-rank-1 { background: rgba(255, 215, 0, 0.2) !important; border-color: gold !important; }
         .lb-rank-2 { background: rgba(192, 192, 192, 0.2) !important; border-color: silver !important; }
         .lb-rank-3 { background: rgba(205, 127, 50, 0.2) !important; border-color: #cd7f32 !important; }
 
-        #game-modal { z-index: 1000; position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: 20px; }
-        
-        /* Multiplier Display Position - Moved left to avoid touching chat */
+        #game-modal { z-index: 3000; position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: 20px; }
         #multiplier-display { position: fixed; bottom: 2rem; right: 400px; z-index: 100; pointer-events: none; }
         @media (max-width: 1024px) { #multiplier-display { bottom: auto; top: 20px; right: 20px; } }
 
-        /* Theme Specific CSS Animations - FIXED to prevent sticking */
+        /* Theme Specific CSS Animations */
         .nature-leaf { font-size: 20px; animation: fall 10s linear infinite; }
-        .snow-flake { font-size: 10px; animation: fall 8s linear infinite; opacity: 0.8; }
+        .snow-flake { font-size: 15px; animation: fall 8s linear infinite; opacity: 0.8; }
         .sea-bubble { font-size: 15px; animation: rise 15s linear infinite; opacity: 0.6; }
         .star { position: absolute; border-radius: 50%; animation: twinkle 3s infinite ease-in-out; }
 
         @keyframes fall {
             0% { transform: translateY(-20vh) translateX(0) rotate(0deg); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
             100% { transform: translateY(110vh) translateX(100px) rotate(360deg); opacity: 0; }
         }
         @keyframes rise {
             0% { transform: translateY(110vh) translateX(0); opacity: 0; }
-            10% { opacity: 0.5; }
             100% { transform: translateY(-20vh) translateX(-50px); opacity: 0; }
         }
         @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }
         
-        /* Warp Transitions */
         .warp-transition { animation: warpIn 0.1s ease-out forwards; }
         @keyframes warpIn {
             0% { transform: scale(0.95) translateY(10px); opacity: 0.9; filter: blur(5px); }
@@ -188,6 +194,26 @@
 
     <canvas id="galaxy-canvas" class="hidden"></canvas>
     <div id="theme-overlay"></div>
+
+    <div id="ascension-tree-view">
+        <h1 class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500 mb-2 drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">ASCENSION TREE</h1>
+        <p class="text-gray-400 mb-8 font-bold tracking-widest text-sm">SPEND YOUR FATFLAPS WISELY</p>
+        
+        <div class="glass p-6 rounded-3xl w-full max-w-4xl h-[60vh] overflow-y-auto border border-purple-500/30 bg-black/40">
+            <div id="ascension-tree-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                </div>
+        </div>
+
+        <div class="mt-8 flex gap-4">
+            <div class="glass px-6 py-3 rounded-xl border border-white/10">
+                <span class="text-xs text-gray-400 font-bold uppercase">Balance</span>
+                <p class="text-2xl font-black text-purple-400"><span id="tree-fatflaps">0</span> 🥞</p>
+            </div>
+            <button onclick="reincarnate()" class="px-8 py-3 bg-gradient-to-r from-emerald-500 to-blue-600 rounded-xl font-bold text-white shadow-lg hover:scale-105 transition-transform border border-white/20">
+                REINCARNATE
+            </button>
+        </div>
+    </div>
 
     <div id="game-modal" class="hidden">
         <div class="glass p-8 rounded-3xl max-w-md w-full border-white/20 shadow-2xl">
@@ -240,7 +266,7 @@
     </div>
 
     <div id="game-screen" class="hidden h-screen overflow-hidden">
-        <div class="game-grid">
+        <div class="game-grid" id="main-grid">
             <div class="left-area">
                 <div class="glass rounded-3xl flex flex-col h-full overflow-hidden relative z-10">
                     <div id="panel-shop" class="left-panel-content flex flex-col h-full overflow-hidden">
@@ -642,7 +668,7 @@
             const clientX = e.clientX || (e.touches ? e.touches[0].clientX : 0);
             const clientY = e.clientY || (e.touches ? e.touches[0].clientY : 0);
             text.style.left = (clientX - 10) + 'px'; text.style.top = (clientY - 20) + 'px';
-            document.body.appendChild(text); setTimeout(() => text.remove(), 2000); // 2s duration
+            document.body.appendChild(text); setTimeout(() => text.remove(), 2000); 
         };
 
         function getPrestigeData() {
@@ -672,8 +698,24 @@
                         vps += (u.basePower * 50);
                     }
                 });
+                // Reset Screen Falling Animation
+                const tree = document.getElementById('ascension-tree-view');
+                const game = document.getElementById('game-screen');
+                game.classList.add('screen-falling');
+                setTimeout(() => {
+                    tree.classList.add('active');
+                }, 1000);
                 updateUI(); renderPrestigeShop();
             }
+        };
+        
+        window.reincarnate = () => {
+            const tree = document.getElementById('ascension-tree-view');
+            const game = document.getElementById('game-screen');
+            tree.classList.remove('active');
+            game.classList.remove('screen-falling');
+            // Slight delay to ensure clean transition
+            setTimeout(() => { updateUI(); }, 500);
         };
 
         window.triggerAccountReset = () => {
@@ -687,14 +729,37 @@
             if (fatflaps >= upg.cost && !ownedPrestigeUpgrades.includes(id)) {
                 fatflaps -= upg.cost; ownedPrestigeUpgrades.push(id);
                 renderPrestigeShop(); updateUI();
+                renderAscensionTree(); // Refresh tree
             }
         };
 
         function renderPrestigeShop() {
             const list = document.getElementById('prestige-shop-list');
-            list.innerHTML = prestigeUpgradeData.map(u => {
+            list.innerHTML = prestigeUpgradeData.filter(u => ownedPrestigeUpgrades.includes(u.id)).map(u => {
+                return `<div class="prestige-card glass p-4 flex justify-between items-center opacity-50"><div class="flex items-center gap-3"><span class="text-2xl">${u.emoji}</span><div><p class="font-bold text-sm text-purple-300">${u.name}</p><p class="text-[9px] opacity-60">${u.desc}</p></div></div><div class="text-right"><p class="text-xs font-bold text-yellow-500">OWNED</p></div></div>`;
+            }).join('');
+            if (list.innerHTML === '') list.innerHTML = '<p class="text-xs text-center opacity-50 py-4">No upgrades purchased yet. Ascend to access the Tree.</p>';
+            
+            // Render actual Tree content
+            renderAscensionTree();
+        }
+        
+        function renderAscensionTree() {
+            const treeContent = document.getElementById('ascension-tree-content');
+            document.getElementById('tree-fatflaps').innerText = fatflaps;
+            
+            treeContent.innerHTML = prestigeUpgradeData.map(u => {
                 const isOwned = ownedPrestigeUpgrades.includes(u.id);
-                return `<div onclick="${isOwned ? '' : `buyPrestigeUpgrade('${u.id}')`}" class="prestige-card glass p-4 flex justify-between items-center ${isOwned ? 'opacity-50' : (fatflaps < u.cost ? 'disabled' : '')}"><div class="flex items-center gap-3"><span class="text-2xl">${u.emoji}</span><div><p class="font-bold text-sm text-purple-300">${u.name}</p><p class="text-[9px] opacity-60">${u.desc}</p></div></div><div class="text-right"><p class="text-xs font-bold text-yellow-500">${isOwned ? 'OWNED' : u.cost + ' 🥞'}</p></div></div>`;
+                const canAfford = fatflaps >= u.cost;
+                return `
+                <div onclick="${isOwned ? '' : `buyPrestigeUpgrade('${u.id}')`}" class="glass p-6 rounded-2xl border ${isOwned ? 'border-green-500/50 bg-green-500/10' : (canAfford ? 'border-purple-500/50 hover:bg-purple-500/20 cursor-pointer' : 'border-red-500/30 opacity-50 cursor-not-allowed')} transition-all flex flex-col items-center text-center gap-2">
+                    <span class="text-4xl mb-2">${u.emoji}</span>
+                    <h3 class="font-bold text-white">${u.name}</h3>
+                    <p class="text-xs text-gray-400 h-8">${u.desc}</p>
+                    <div class="mt-2 px-4 py-1 rounded-full text-xs font-bold ${isOwned ? 'bg-green-500 text-black' : 'bg-purple-600 text-white'}">
+                        ${isOwned ? 'OWNED' : u.cost + ' 🥞'}
+                    </div>
+                </div>`;
             }).join('');
         }
 
@@ -732,7 +797,6 @@
                     p.className = 'particle';
                     const left = Math.random() * 100;
                     
-                    // Fixed particle clipping by randomizing start delay and using negative delay to pre-warm animation
                     const delay = -(Math.random() * 15); 
                     
                     p.style.left = left + '%';
@@ -742,14 +806,13 @@
                         const types = ['🍂','🍃','🍁'];
                         p.innerText = types[Math.floor(Math.random()*3)];
                         p.className += ' nature-leaf';
-                        p.style.fontSize = (Math.random() * 15 + 10) + 'px';
                     } else if(theme === 'snowy') {
-                        p.innerText = '❄️snow';
+                        p.innerText = '❄️';
                         p.className += ' snow-flake';
                         const s = Math.random() * 10 + 5;
                         p.style.fontSize = s + 'px';
                     } else if(theme === 'sea') {
-                        p.innerText = '🔵';
+                        p.innerText = '🫧';
                         p.className += ' sea-bubble';
                         const s = Math.random() * 15 + 5;
                         p.style.fontSize = s + 'px';
