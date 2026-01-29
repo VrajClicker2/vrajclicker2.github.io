@@ -370,9 +370,12 @@
                 <input type="password" id="su-password" placeholder="Password" class="w-full p-4 rounded-xl bg-black/20 border border-white/10 outline-none">
                 <button onclick="handleSignup()" class="w-full bg-emerald-600 p-4 rounded-xl font-bold">Create Account</button>
             </div>
-            <div id="verify-notice" class="hidden py-6">
-                <h2 class="text-xl font-bold text-yellow-400">Check Email</h2>
-                <button onclick="location.reload()" class="bg-blue-600 p-3 rounded-xl font-bold w-full mt-4">I've Verified</button>
+            <div id="verify-notice" class="hidden flex flex-col items-center justify-center space-y-4 py-4">
+                <h2 class="text-2xl font-black text-yellow-400">Verify Your Email</h2>
+                <p class="text-white/80 text-sm mb-4">We sent a link to your inbox.<br>Please check your <b>Spam Folder</b> too!</p>
+                <button onclick="resendVerification()" id="resend-btn" class="bg-white/10 border border-white/20 p-3 rounded-xl font-bold w-full hover:bg-white/20 transition">Resend Email</button>
+                <button onclick="location.reload()" class="bg-emerald-600 p-3 rounded-xl font-bold w-full shadow-lg hover:scale-105 transition">I've Verified!</button>
+                <button onclick="backToLogin()" class="text-xs text-white/50 hover:text-white underline mt-2">Wrong Email? Go Back</button>
             </div>
         </div>
     </div>
@@ -501,7 +504,7 @@
                 </div>
                 
                 <div class="flex flex-col items-center gap-4">
-                    <div id="clicker-container" onclick="clickVraj(event)" class="click-btn-container w-[450px] h-[450px] rounded-full p-1 shadow-2xl">
+                    <div id="clicker-container" class="click-btn-container w-[450px] h-[450px] rounded-full p-1 shadow-2xl">
                         <div class="w-full h-full rounded-full overflow-hidden border-8 border-black/80 transition-colors duration-500 bg-black">
                             <img src="image_0.png" class="click-img">
                         </div>
@@ -1130,7 +1133,8 @@
 
         const clickerContainer = document.getElementById('clicker-container');
         clickerContainer.addEventListener('mousedown', window.clickVraj);
-        clickerContainer.addEventListener('mouseup', (e) => {});
+        // Fixed: Use mouseup listener correctly instead of onclick
+        clickerContainer.addEventListener('mouseup', window.clickVraj);
 
         function getPrestigeData() {
             // UPDATED: Use totalVrajs minus already spent value to prevent infinite prestige loops
@@ -1411,6 +1415,9 @@
         let isPopupShowing = false;
 
         function checkAchievements() {
+            // FIX: Don't check achievements if user is logged out
+            if(!currentUser) return;
+
             let changed = false;
             // Get current CPS for achievement check
             const currentCPS = clickTimestamps.length;
@@ -1639,10 +1646,27 @@
         setInterval(() => { if (vps > 0 || score > 0) { updateUI(); } }, 500);
 
         window.switchTab = (t) => { document.getElementById('login-form').classList.toggle('hidden', t !== 'login'); document.getElementById('signup-form').classList.toggle('hidden', t !== 'signup'); document.getElementById('tab-login').classList.toggle('bg-blue-600', t === 'login'); document.getElementById('tab-signup').classList.toggle('bg-blue-600', t === 'signup'); };
-        window.handleSignup = async () => { const u = document.getElementById('su-username').value, e = document.getElementById('su-email').value, p = document.getElementById('su-password').value; try { const c = await createUserWithEmailAndPassword(auth, e, p); await setDoc(doc(db, "users", c.user.uid), { username: u }); await sendEmailVerification(c.user); window.showAlert("Success", "Check email for verification."); } catch (err) { window.showAlert("Error", err.message); } };
+        window.handleSignup = async () => { const u = document.getElementById('su-username').value, e = document.getElementById('su-email').value, p = document.getElementById('su-password').value; try { const c = await createUserWithEmailAndPassword(auth, e, p); await setDoc(doc(db, "users", c.user.uid), { username: u }); await sendEmailVerification(c.user); /* REMOVED ALERT TO PREVENT DUPLICATE POPUP */ } catch (err) { window.showAlert("Error", err.message); } };
         window.handleLogin = async () => { try { await signInWithEmailAndPassword(auth, document.getElementById('li-email').value, document.getElementById('li-password').value); } catch (err) { window.showAlert("Error", err.message); } };
         window.handleGuest = () => signInAnonymously(auth);
         window.logoutAction = () => window.showAlert("Logout", "Are you sure you want to sign out?", () => signOut(auth), true);
+
+        // --- NEW FUNCTIONS FOR VERIFICATION SCREEN ---
+        window.resendVerification = async () => {
+             if(currentUser) {
+                 const btn = document.getElementById('resend-btn');
+                 try {
+                     await sendEmailVerification(currentUser);
+                     btn.innerText = "Sent!";
+                     setTimeout(() => btn.innerText = "Resend Email", 5000);
+                 } catch(e) { window.showAlert("Error", e.message); }
+             }
+        };
+
+        window.backToLogin = async () => {
+             await signOut(auth);
+             location.reload();
+        };
 
         // --- RESET LOCAL GAME STATE ---
         function resetLocalState() {
@@ -1656,6 +1680,10 @@
             petsState = {}; equippedStyles = new Set();
             upgrades.forEach(u => { u.owned = 0; u.cost = u.baseCost; });
             achievements.forEach(a => a.unlocked = false);
+            
+            // FIX: Clear Achievement Queue on logout
+            achPopupQueue.length = 0;
+            isPopupShowing = false;
             
             // IMMEDIATE UI RESET
             document.getElementById('score').innerText = '0 Vrajs';
