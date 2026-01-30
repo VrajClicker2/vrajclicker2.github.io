@@ -224,7 +224,7 @@
         #cheat-btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
     </style>
 </head>
-<body class="select-none theme-classic">
+<body class="select-none theme-classic" oncontextmenu="return false;">
 
     <canvas id="galaxy-canvas" class="hidden"></canvas>
     <div id="theme-overlay"></div>
@@ -464,12 +464,6 @@
                         <div class="space-y-6">
                             <h3 class="font-bold opacity-50 text-xl mb-4">⚙️ System</h3>
                             <div class="space-y-3">
-                                <button onclick="trackSettingClick()" class="w-full p-4 glass rounded-xl text-left text-sm hover:bg-white/5 transition flex justify-between items-center">
-                                    Check for Updates <span class="text-[10px] bg-blue-500/20 px-2 py-1 rounded">v2.7</span>
-                                </button>
-                                <button onclick="toggleMusic()" class="w-full p-4 glass rounded-xl text-left text-sm hover:bg-white/5 transition flex justify-between items-center">
-                                    Toggle Music <span id="music-status" class="text-[10px] bg-emerald-500/20 px-2 py-1 rounded">ON</span>
-                                </button>
                                 <button onclick="triggerAccountReset()" class="w-full p-4 bg-red-600/10 border border-red-600/30 text-red-500 rounded-xl text-left text-sm font-bold hover:bg-red-600/20 transition">
                                     Reset Account Progress
                                 </button>
@@ -526,7 +520,7 @@
                 </div>
                 <div class="glass rounded-3xl flex-1 flex flex-col overflow-hidden min-h-[300px]">
                     <div class="p-4 bg-white/5 font-bold text-emerald-400 flex-shrink-0">💬 Global Chat</div>
-                    <div id="chat-box" class="scroll-panel p-4 flex flex-col-reverse text-sm"></div>
+                    <div id="chat-box" class="scroll-panel p-4 flex flex-col text-sm"></div>
                     <form id="chat-form" class="p-3 bg-white/5 flex gap-2 flex-shrink-0">
                         <input type="text" id="chat-input" placeholder="Type..." class="flex-grow bg-black/40 border border-white/10 p-2 rounded-lg text-xs outline-none">
                         <button class="bg-emerald-600 px-3 py-2 rounded-lg text-xs font-bold text-white">Send</button>
@@ -549,9 +543,11 @@
         
         const clickSound = new Audio('click.mp3');
         const achievementSound = new Audio('achievement.mp3');
+        const sirenSound = new Audio('siren.mp3'); // NEW AUDIO
         const bgm = new Audio('bgm.mp3');
         bgm.loop = true;
         bgm.volume = 0.4;
+        sirenSound.volume = 0.8;
 
         // LOAD MUTE STATE FROM LOCAL STORAGE
         let isMuted = localStorage.getItem('vraj_mute_state') === 'true';
@@ -587,7 +583,6 @@
         }
 
         function updateMusicUI() {
-            document.getElementById('music-status').innerText = isMuted ? 'OFF' : 'ON';
             document.getElementById('music-toggle-btn').style.opacity = isMuted ? '0.5' : '1';
             document.getElementById('global-mute-btn').innerText = isMuted ? '🔇' : '🔊';
         }
@@ -705,47 +700,84 @@
         // --- AUTO CLICKER DETECTION SYSTEM ---
         let cheatStrikes = 0;
         let isInputBlocked = false;
-        let detectionBuffer = [];
-        const DETECT_BUFFER_SIZE = 50;
+        let clickHistory = [];
+        const HISTORY_SIZE = 64; 
         
-        // Hold Time Detection
         let mouseDownTime = 0;
-        let clickHoldTimes = [];
 
-        function detectAutoClicker() {
+        function detectAutoClicker(e) {
             const now = Date.now();
-            detectionBuffer.push(now);
-            if(detectionBuffer.length > DETECT_BUFFER_SIZE) detectionBuffer.shift();
+            // 1. Input Data Collection
+            const x = e.clientX || 0;
+            const y = e.clientY || 0;
             
-            // EXTREMELY RELAXED CHECK: Avg hold time < 1ms
-            if(clickHoldTimes.length > 20) {
-                const recentHolds = clickHoldTimes.slice(-20);
-                const avgHold = recentHolds.reduce((a,b)=>a+b)/recentHolds.length;
-                if(avgHold < 1) return true; // Only flag if essentially 0ms holds
+            clickHistory.push({ t: now, x: x, y: y });
+            if (clickHistory.length > HISTORY_SIZE) clickHistory.shift();
+            
+            // Need full buffer to analyze trends
+            if (clickHistory.length < HISTORY_SIZE) return false;
+
+            // Extract Intervals
+            const intervals = [];
+            for (let i = 1; i < clickHistory.length; i++) {
+                intervals.push(clickHistory[i].t - clickHistory[i-1].t);
             }
 
-            if(detectionBuffer.length < 20) return false;
+            // --- LAYER 1: BASIC STATISTICS ---
+            const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+            const cps = 1000 / avgInterval;
+            
+            // Safety: Humans can click slowly without triggering anything.
+            if (cps < 6) return false; 
+            
+            // Hard Cap (Machine Gun): > 30 CPS sustained
+            if (cps > 30) return true;
 
-            // EXTREMELY RELAXED CHECK: Burst speed > 50 CPS
-            if(detectionBuffer.length >= 10) {
-                const burstTime = detectionBuffer[detectionBuffer.length-1] - detectionBuffer[detectionBuffer.length-10];
-                if(burstTime < 200) return true; 
-            }
-
-            let intervals = [];
-            for(let i=1; i<detectionBuffer.length; i++) {
-                intervals.push(detectionBuffer[i] - detectionBuffer[i-1]);
-            }
-
-            const avg = intervals.reduce((a,b)=>a+b)/intervals.length;
-            // EXTREMELY RELAXED CHECK: Sustained > 50 CPS
-            if(detectionBuffer.length === DETECT_BUFFER_SIZE && avg < 20) return true;
-
-            const variance = intervals.reduce((a,b) => a + Math.pow(b-avg, 2), 0) / intervals.length;
+            // Standard Deviation (Consistency)
+            const variance = intervals.reduce((a, b) => a + Math.pow(b - avgInterval, 2), 0) / intervals.length;
             const stdDev = Math.sqrt(variance);
+
+            // --- LAYER 2: ROBOTIC CONSISTENCY ---
+            // Humans typically have >15ms jitter even when trying to be consistent.
+            // Macro recorders (even with small delays) often have <5ms jitter or exactly 0.
+            if (stdDev < 5) return true;
+
+            // --- LAYER 3: HESITATION DETECTION ---
+            // Humans pause or stutter. The gap between the fastest and slowest click is significant.
+            // Bots often have a "flat" distribution.
+            const minInt = Math.min(...intervals);
+            const maxInt = Math.max(...intervals);
             
-            // EXTREMELY RELAXED CHECK: High speed (>10 CPS) AND robotic perfection (< 1ms variance)
-            if(avg < 100 && stdDev < 1) return true;
+            // "Flat" Distribution Check:
+            // If the difference between slowest and fastest click is tiny (<20ms) at high speeds
+            if (cps > 10 && (maxInt - minInt) < 20) return true;
+
+            // --- LAYER 4: LONG-TERM VARIANCE & FATIGUE ---
+            // Humans drift. They speed up and slow down (Fatigue).
+            // Split history in two halves.
+            const mid = Math.floor(intervals.length / 2);
+            const firstHalfAvg = intervals.slice(0, mid).reduce((a,b)=>a+b,0) / mid;
+            const secondHalfAvg = intervals.slice(mid).reduce((a,b)=>a+b,0) / (intervals.length - mid);
+            
+            const drift = Math.abs(firstHalfAvg - secondHalfAvg);
+            
+            // If clicking fast (>12 CPS) and average speed drifted less than 0.5ms over ~60 clicks
+            // That is statistically impossible for a human finger.
+            // Note: We check stdDev > 10 to ensure we catch "random offset" bots that are artificially high variance
+            // but average out perfectly over time.
+            if (cps > 12 && drift < 0.5 && stdDev > 10) return true;
+
+            // --- LAYER 5: CURSOR CORRELATION (Entropy Check) ---
+            // Check if cursor moves. Laptop users might be still, but rarely PIXEL perfect for 64 clicks.
+            // However, we only flag if they are ALSO clicking suspiciously fast/consistent.
+            let spatialDist = 0;
+            for(let i=1; i<clickHistory.length; i++) {
+                spatialDist += Math.abs(clickHistory[i].x - clickHistory[i-1].x) + Math.abs(clickHistory[i].y - clickHistory[i-1].y);
+            }
+            
+            // If perfectly still (0 movement) AND extremely consistent (stdDev < 12)
+            // (Standard human consistent is ~20-30ms. <12ms is pro/bot territory. Still mouse + <12ms = Bot)
+            if (spatialDist === 0 && stdDev < 12) return true;
 
             return false;
         }
@@ -755,6 +787,9 @@
             isInputBlocked = true;
             cheatStrikes++;
             
+            sirenSound.currentTime = 0;
+            sirenSound.play().catch(() => {}); // Plays Siren
+
             document.getElementById('strike-count').innerText = cheatStrikes;
             document.getElementById('cheat-warning').classList.remove('hidden');
             
@@ -777,6 +812,8 @@
                     clearInterval(timer);
                     btn.disabled = false;
                     btn.innerHTML = "I UNDERSTAND";
+                    sirenSound.pause(); // Stop siren when they can click
+                    sirenSound.currentTime = 0;
                 } else {
                     btn.innerHTML = `WAIT (${count})`;
                 }
@@ -786,8 +823,7 @@
         window.acknowledgeStrike = () => {
             if(cheatStrikes >= 2) return; 
             isInputBlocked = false;
-            detectionBuffer = [];
-            clickHoldTimes = [];
+            clickHistory = [];
             document.getElementById('cheat-warning').classList.add('hidden');
         };
 
@@ -1094,15 +1130,11 @@
                 mouseDownTime = Date.now();
                 return;
             }
-            if(e.type === 'mouseup' || e.type === 'click') {
-                if(mouseDownTime > 0) {
-                    clickHoldTimes.push(Date.now() - mouseDownTime);
-                    if(clickHoldTimes.length > 50) clickHoldTimes.shift();
-                }
-            }
+            // Removed clickHoldTimes push for better mobile compatibility
 
             if(isInputBlocked) return;
-            if(detectAutoClicker()) {
+            // UPDATED: Pass the event to the new detector
+            if(detectAutoClicker(e)) {
                 triggerCheatStrike();
                 return;
             }
@@ -1421,6 +1453,9 @@
             let changed = false;
             // Get current CPS for achievement check
             const currentCPS = clickTimestamps.length;
+            
+            // Calculate total time played across all sessions
+            const actualTotalMinutes = (savedTime + (Date.now() - sessionStartTime)) / 60000;
 
             achievements.forEach(ach => {
                 if (ach.unlocked) return;
@@ -1428,7 +1463,10 @@
                 if (ach.type === 'clicks' && totalClicks >= ach.target) meets = true;
                 if (ach.type === 'totalVrajs' && totalVrajs >= ach.target) meets = true;
                 if (ach.type === 'vps' && vps >= ach.target) meets = true;
-                if (ach.type === 'timePlayed' && (timePlayed/60) >= ach.target) meets = true; 
+                
+                // FIXED TIME PLAYED CHECK
+                if (ach.type === 'timePlayed' && actualTotalMinutes >= ach.target) meets = true; 
+                
                 if (ach.type === 'golden' && goldenVrajsCaught >= ach.target) meets = true;
                 if (ach.type === 'chat' && chatsSent >= ach.target) meets = true;
                 if (ach.type === 'prestige' && prestigeCount >= ach.target) meets = true;
@@ -1746,12 +1784,24 @@
                         }).join('');
                         isTop10 = inTop; checkAchievements();
                     });
+                    
+                    // --- UPDATED CHAT LOGIC ---
+                    // Fixed auto-scroll to bottom (newest messages)
+                    const chatBox = document.getElementById('chat-box');
                     onSnapshot(query(collection(db, "globalChat"), orderBy("timestamp", "desc"), limit(20)), (s) => {
-                        document.getElementById('chat-box').innerHTML = s.docs.map(d => {
+                        const wasAtBottom = chatBox.scrollHeight - chatBox.scrollTop === chatBox.clientHeight;
+                        
+                        // Reverse the array so oldest is at top, newest at bottom
+                        const messages = s.docs.reverse();
+                        
+                        chatBox.innerHTML = messages.map(d => {
                             const dData = d.data();
                             let nameClass = "text-emerald-400 font-bold"; const tagData = nameTagsData.find(n => n.id === dData.nametag); if(tagData && dData.nametag !== 'classic') nameClass = tagData.class;
                             return `<div class="mb-1"><span class="${nameClass}">${dData.username}:</span> ${dData.text}</div>`;
                         }).join('');
+
+                        // Auto-scroll to bottom to see new message
+                        chatBox.scrollTop = chatBox.scrollHeight;
                     });
                 }
             } else { 
