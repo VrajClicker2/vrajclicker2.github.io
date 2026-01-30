@@ -163,6 +163,7 @@
         #multiplier-display { position: fixed; bottom: 20px; right: 380px; z-index: 4000; pointer-events: none; display: flex; }
         @media (max-width: 1024px) { #multiplier-display { bottom: auto; top: 20px; right: 20px; } }
         .dev-tag { background: linear-gradient(to right, #ef4444, #f87171); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; margin-right: 5px; text-transform: uppercase; font-size: 0.7em; vertical-align: middle; }
+        .beta-tag { background: linear-gradient(to right, #3b82f6, #60a5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; margin-right: 5px; text-transform: uppercase; font-size: 0.7em; vertical-align: middle; }
         
         /* Achievement Popup */
         #achievement-popup {
@@ -245,6 +246,15 @@
             </button>
         </div>
     </div>
+    
+    <div id="ban-screen" class="hidden fixed inset-0 z-[10000] bg-red-950/90 flex items-center justify-center text-center p-10">
+        <div>
+            <h1 class="text-6xl font-black text-red-500 mb-4">BANNED</h1>
+            <p class="text-white/80 text-xl">You have been banned from Vraj Clicker 2.</p>
+            <p class="text-white/50 text-sm mt-4">Reason: Violation of Terms</p>
+            <button onclick="location.reload()" class="mt-8 px-6 py-2 bg-red-800 text-white rounded font-bold">Try Reconnect</button>
+        </div>
+    </div>
 
     <div class="fixed top-4 right-20 z-50 flex gap-2">
         <button id="music-toggle-btn" onclick="toggleMusic()" class="bg-white/10 p-2 rounded-full border border-white/20 hover:bg-white/20 backdrop-blur-md transition-all text-xl hidden">🎵</button>
@@ -284,14 +294,53 @@
     </div>
 
     <div id="owner-modal" class="hidden fixed inset-0 z-[4000] bg-black/90 flex items-center justify-center">
-        <div class="glass p-8 rounded-3xl w-96 border border-red-500/50">
+        <div class="glass p-8 rounded-3xl w-96 border border-red-500/50 max-h-[90vh] overflow-y-auto">
             <h2 class="text-2xl font-black text-red-500 mb-4 text-center">DEV CONSOLE</h2>
-            <div class="space-y-4">
+            
+            <div class="space-y-4 mb-6 pb-6 border-b border-white/10">
+                <h3 class="text-sm font-bold text-white/50 uppercase">Self Actions</h3>
                 <input type="number" id="cheat-amount" placeholder="Amount" class="w-full p-2 bg-black/50 border border-white/10 rounded text-white">
-                <button onclick="cheatAddVrajs()" class="w-full bg-blue-600 p-2 rounded font-bold">Add Vrajs</button>
-                <button onclick="cheatAddFatflaps()" class="w-full bg-purple-600 p-2 rounded font-bold">Add Fatflaps</button>
-                <button onclick="document.getElementById('owner-modal').classList.add('hidden')" class="w-full bg-gray-600 p-2 rounded font-bold">Close</button>
+                <button onclick="cheatAddVrajs()" class="w-full bg-blue-600 p-2 rounded font-bold">Add Vrajs (Self)</button>
+                <button onclick="cheatAddFatflaps()" class="w-full bg-purple-600 p-2 rounded font-bold">Add Fatflaps (Self)</button>
             </div>
+            
+            <div class="space-y-4">
+                <h3 class="text-sm font-bold text-white/50 uppercase">User Management</h3>
+                <input type="text" id="admin-target-user" placeholder="Target Username" class="w-full p-2 bg-black/50 border border-white/10 rounded text-white font-bold text-yellow-400">
+                
+                <div class="flex gap-2 mb-2">
+                    <input type="text" id="admin-new-username" placeholder="New Username" class="w-full p-2 bg-black/50 border border-white/10 rounded text-white text-xs">
+                    <button onclick="adminAction('rename')" class="bg-gray-600 px-3 rounded font-bold text-xs hover:bg-gray-500 whitespace-nowrap">Change Name</button>
+                </div>
+
+                <div class="flex gap-2 mb-4">
+                    <input type="email" id="admin-reset-email" placeholder="Target Email for Password Reset" class="w-full p-2 bg-black/50 border border-white/10 rounded text-white text-xs">
+                    <button onclick="adminTriggerPasswordReset()" class="bg-indigo-600 px-3 rounded font-bold text-xs hover:bg-indigo-500 whitespace-nowrap">Send Email</button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="adminAction('ban')" class="bg-red-600 p-2 rounded font-bold text-xs hover:bg-red-500">BAN USER</button>
+                    <button onclick="adminAction('unban')" class="bg-emerald-600 p-2 rounded font-bold text-xs hover:bg-emerald-500">UNBAN USER</button>
+                    <button onclick="adminAction('kick')" class="bg-orange-600 p-2 rounded font-bold text-xs hover:bg-orange-500">KICK USER</button>
+                    <button onclick="adminAction('reset_progress')" class="bg-red-800 border border-red-500 p-2 rounded font-bold text-xs hover:bg-red-700 text-red-200">RESET PROGRESS</button>
+                </div>
+                
+                <div class="flex gap-2 mt-4">
+                    <select id="admin-stat-type" class="bg-black/50 border border-white/10 rounded text-white text-xs p-2 flex-1">
+                        <option value="totalVrajs">Set Vrajs</option>
+                        <option value="fatflaps">Set Fatflaps</option>
+                        <option value="prestigeCount">Set Ascensions</option>
+                    </select>
+                    <input type="number" id="admin-stat-val" placeholder="Val" class="w-20 bg-black/50 border border-white/10 rounded text-white p-2 text-xs">
+                </div>
+                <button onclick="adminSetStat()" class="w-full bg-gray-600 p-2 rounded font-bold text-xs hover:bg-gray-500">SET STAT</button>
+
+                <div class="pt-4 border-t border-white/10 mt-4">
+                     <button onclick="adminGlobalRefresh()" class="w-full bg-blue-900/50 border border-blue-500 text-blue-300 p-2 rounded font-bold text-xs hover:bg-blue-800">GLOBAL REFRESH (ALL TABS)</button>
+                </div>
+            </div>
+
+            <button onclick="document.getElementById('owner-modal').classList.add('hidden')" class="w-full bg-gray-800 p-2 rounded font-bold mt-6">Close Console</button>
         </div>
     </div>
 
@@ -532,8 +581,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInAnonymously, onAuthStateChanged, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, addDoc, collection, query, orderBy, limit, onSnapshot, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInAnonymously, onAuthStateChanged, sendEmailVerification, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, addDoc, collection, query, where, orderBy, limit, onSnapshot, getDocs, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import * as THREE from 'three';
 
         const firebaseConfig = { apiKey: "AIzaSyDwg2ZSpQspAD-o19AZCOHcrl9VnYc_sdk", authDomain: "vraj-clicker-2.firebaseapp.com", projectId: "vraj-clicker-2", storageBucket: "vraj-clicker-2.firebasestorage.app", messagingSenderId: "162243172716", appId: "1:162243172716:web:874a1f8be471a9f0d83b49" };
@@ -543,11 +592,19 @@
         
         const clickSound = new Audio('click.mp3');
         const achievementSound = new Audio('achievement.mp3');
-        const sirenSound = new Audio('siren.mp3'); // NEW AUDIO
+        const sirenSound = new Audio('siren.mp3'); 
         const bgm = new Audio('bgm.mp3');
         bgm.loop = true;
         bgm.volume = 0.4;
         sirenSound.volume = 0.8;
+
+        // --- AUTH CONSTANTS ---
+        const DEV_EMAIL = "jaash08@gmail.com";
+        const TESTER_EMAILS = [
+            "gabrielspiteri820@gmail.com",
+            "haydenrcordell@gmail.com",
+            "hexege9960@dretnar.com"
+        ];
 
         // LOAD MUTE STATE FROM LOCAL STORAGE
         let isMuted = localStorage.getItem('vraj_mute_state') === 'true';
@@ -685,7 +742,7 @@
         
         let currentUser = null, currentUsername = "Guest", activeTheme = 'classic', activeNametag = 'classic';
         let clickIntervals = [], lastClickTime = Date.now(), hasWarned = false;
-        let savedTime = 0, sessionStartTime = Date.now(), isDev = false; 
+        let savedTime = 0, sessionStartTime = Date.now(), isDev = false, isTester = false; 
         let equippedStyles = new Set();
         let isTop10 = false;
         let leaderboardRank = 9999;
@@ -1345,6 +1402,101 @@
         window.triggerAccountReset = () => { window.showAlert("💀 EXTREME RESET", `This will delete ALL Vrajs, Upgrades, Fatflaps, and Achievements.<br><br>To confirm, type your username: <b class='text-red-400'>${currentUsername}</b>`, () => executeFullReset(), true, true); };
         async function executeFullReset() { if(currentUser && !currentUser.isAnonymous) { await deleteDoc(doc(db, "leaderboard", currentUser.uid)); } location.reload(); }
 
+        // --- NEW ADMIN FUNCTIONS ---
+        
+        // Find user ID by username
+        async function findUserByUsername(username) {
+            const q = query(collection(db, "leaderboard"), where("username", "==", username), limit(1));
+            const snapshot = await getDocs(q);
+            if(snapshot.empty) return null;
+            return snapshot.docs[0].id;
+        }
+
+        window.adminAction = async (action) => {
+            if(!isDev) return;
+            const targetName = document.getElementById('admin-target-user').value;
+            if(!targetName) { alert("Please enter a username."); return; }
+            
+            const uid = await findUserByUsername(targetName);
+            if(!uid) { alert("User not found."); return; }
+            
+            try {
+                const userRef = doc(db, "leaderboard", uid);
+                
+                if(action === 'ban') {
+                    await updateDoc(userRef, { banned: true });
+                    alert(`Banned ${targetName}`);
+                } else if(action === 'unban') {
+                    await updateDoc(userRef, { banned: false });
+                    alert(`Unbanned ${targetName}`);
+                } else if(action === 'kick') {
+                    await updateDoc(userRef, { forceKick: Date.now() });
+                    alert(`Kicked ${targetName}`);
+                } else if(action === 'reset_progress') {
+                    if(confirm(`Are you SURE you want to RESET PROGRESS for ${targetName}? They will lose all Vrajs/Stats but keep their account.`)) {
+                        await updateDoc(userRef, {
+                            score: 0, vps: 0, ppc: 1, totalVrajs: 0, totalClicks: 0,
+                            totalUpgrades: 0, goldenVrajsCaught: 0, prestigeCount: 0,
+                            fatflaps: 0, ownedPrestigeUpgrades: [], 
+                            upgStates: [], achStates: [], petsState: {}, equippedStyles: [],
+                            forceRefresh: Date.now() // Force a refresh so they see it
+                        });
+                        alert(`Reset progress for ${targetName}`);
+                    }
+                } else if(action === 'rename') {
+                    const newName = document.getElementById('admin-new-username').value;
+                    if(!newName) { alert("Enter a new username"); return; }
+                    await updateDoc(userRef, { username: newName });
+                    // Also update the 'users' collection for consistency
+                    await updateDoc(doc(db, "users", uid), { username: newName });
+                    alert(`Renamed to ${newName}`);
+                }
+            } catch(e) {
+                alert("Error: " + e.message + "\n\n(Ensure Firestore Rules allow writes!)");
+            }
+        };
+
+        window.adminTriggerPasswordReset = async () => {
+            if(!isDev) return;
+            const email = document.getElementById('admin-reset-email').value;
+            if(!email) { alert("Please enter the target email."); return; }
+            
+            try {
+                await sendPasswordResetEmail(auth, email);
+                alert(`Password reset email sent to ${email}`);
+            } catch(e) {
+                alert("Error: " + e.message);
+            }
+        };
+
+        window.adminSetStat = async () => {
+             if(!isDev) return;
+             const targetName = document.getElementById('admin-target-user').value;
+             const statType = document.getElementById('admin-stat-type').value;
+             const val = parseFloat(document.getElementById('admin-stat-val').value);
+             
+             if(!targetName || isNaN(val)) { alert("Invalid inputs."); return; }
+             
+             const uid = await findUserByUsername(targetName);
+             if(!uid) { alert("User not found."); return; }
+             
+             try {
+                 await updateDoc(doc(db, "leaderboard", uid), { [statType]: val });
+                 alert(`Set ${statType} to ${val} for ${targetName}`);
+             } catch(e) {
+                 alert("Error: " + e.message + "\n\n(Ensure Firestore Rules allow writes!)");
+             }
+        };
+
+        window.adminGlobalRefresh = async () => {
+             if(!isDev) return;
+             if(confirm("Are you sure you want to refresh EVERYONE'S browser tab?")) {
+                 // We use a global system document for this
+                 await setDoc(doc(db, "system", "global"), { forceRefreshAll: Date.now() }, { merge: true });
+                 alert("Global refresh signal sent.");
+             }
+        };
+
         window.buyPrestigeUpgrade = (id) => {
             const upg = prestigeTreeData.find(u => u.id === id); const parentOwned = upg.parent === null || ownedPrestigeUpgrades.includes(upg.parent);
             if (fatflaps >= upg.cost && !ownedPrestigeUpgrades.includes(id) && parentOwned) { fatflaps -= upg.cost; ownedPrestigeUpgrades.push(id); renderPrestigeShop(); updateUI(); renderAscensionTree(); checkAchievements(); }
@@ -1706,6 +1858,9 @@
             let displayHTML = currentUsername;
             if(activeNametag !== 'classic') { const tagData = nameTagsData.find(n => n.id === activeNametag); if(tagData) { displayHTML = `<span class="${tagData.class}">${currentUsername}</span>`; } }
             if(isDev) displayHTML = `<span class="dev-tag">[DEV]</span> ${displayHTML}`;
+            // UPDATED: Tester Tag Logic for Main UI
+            else if(isTester) displayHTML = `<span class="beta-tag text-blue-400">[BETA]</span> ${displayHTML}`;
+            
             document.getElementById('user-display').innerHTML = displayHTML;
             if(hasTree('mute_upg')) { document.getElementById('global-mute-btn').classList.remove('hidden'); }
         }
@@ -1778,18 +1933,70 @@
             bgm.pause(); bgm.currentTime = 0; isMusicPlaying = false; 
         }
 
+        let kickCheckInterval = null;
+
         onAuthStateChanged(auth, async (user) => {
             currentUser = user;
             if (user) {
                 if(!isMuted) { bgm.play().catch(()=>{}); isMusicPlaying = true; } // START MUSIC ON LOGIN
 
-                if (user.email === 'jaash08@gmail.com') { isDev = true; document.getElementById('dev-menu-btn').classList.remove('hidden'); }
+                // UPDATED: Permission Logic
+                if (user.email === DEV_EMAIL) { 
+                    isDev = true; 
+                    document.getElementById('dev-menu-btn').classList.remove('hidden'); 
+                }
+                else if (TESTER_EMAILS.includes(user.email)) {
+                    isTester = true;
+                    // Note: Tester does NOT get Dev Menu
+                }
+
                 if (!user.isAnonymous && !user.emailVerified) { document.getElementById('verify-notice').classList.remove('hidden'); document.getElementById('login-form').classList.add('hidden'); document.getElementById('auth-tabs').classList.add('hidden'); } 
                 else {
                     document.getElementById('auth-screen').classList.add('hidden'); document.getElementById('game-screen').classList.remove('hidden');
                     if(user.isAnonymous) { currentUsername = "Guest_" + user.uid.substring(0,4); } 
                     else {
                         const snap = await getDoc(doc(db, "users", user.uid)); currentUsername = snap.exists() ? snap.data().username : "Vraj";
+                        
+                        // LISTEN FOR BAN/KICK SIGNALS
+                        const userDocRef = doc(db, "leaderboard", user.uid);
+                        onSnapshot(userDocRef, (s) => {
+                            if(s.exists()) {
+                                const d = s.data();
+                                // Ban Logic
+                                if(d.banned) {
+                                    document.getElementById('game-screen').remove();
+                                    document.getElementById('ban-screen').classList.remove('hidden');
+                                    signOut(auth);
+                                    return;
+                                }
+                                // Kick Logic (Check against session start)
+                                if(d.forceKick && d.forceKick > sessionStartTime) {
+                                    signOut(auth).then(() => location.reload());
+                                    return;
+                                }
+                                // Refresh Logic
+                                if(d.forceRefresh && d.forceRefresh > sessionStartTime) {
+                                    location.reload();
+                                    return;
+                                }
+
+                                // Update local stats
+                                if(d.score !== undefined && d.score !== score) score = d.score;
+                                if(d.fatflaps !== undefined && d.fatflaps !== fatflaps) fatflaps = d.fatflaps;
+                                if(d.prestigeCount !== undefined && d.prestigeCount !== prestigeCount) prestigeCount = d.prestigeCount;
+                            }
+                        });
+
+                        // GLOBAL COMMAND LISTENER
+                        onSnapshot(doc(db, "system", "global"), (s) => {
+                            if(s.exists()) {
+                                const d = s.data();
+                                if(d.forceRefreshAll && d.forceRefreshAll > sessionStartTime) {
+                                    location.reload();
+                                }
+                            }
+                        });
+
                         const save = await getDoc(doc(db, "leaderboard", user.uid)); 
                         if(save.exists()){ 
                             const d = save.data(); score = d.score || 0; vps = d.vps || 0; ppc = d.ppc || 1; totalVrajs = d.totalVrajs || 0; totalClicks = d.totalClicks || 0; totalUpgrades = d.totalUpgrades || 0; goldenVrajsCaught = d.goldenVrajsCaught || 0; 
@@ -1810,7 +2017,16 @@
                     
                     setInterval(() => { if(currentUser && !currentUser.isAnonymous) {
                         const currentSession = Date.now() - sessionStartTime;
-                        setDoc(doc(db, "leaderboard", currentUser.uid), { score, vps, ppc, totalVrajs, totalClicks, totalCrits, chatsSent, totalUpgrades, goldenVrajsCaught, timePlayed: savedTime + currentSession, username: currentUsername, upgStates: upgrades.map(u => ({ owned: u.owned, cost: u.cost })), achStates: achievements.map(a => a.unlocked), prestigeCount, fatflaps, ownedPrestigeUpgrades, activeTheme, activeNametag, ascensionUnlocked, petsState, equippedStyles: Array.from(equippedStyles), prestigeCostDeduction }, { merge: true }); 
+                        // UPDATED: Save isDev and isTester to leaderboard for public visibility
+                        setDoc(doc(db, "leaderboard", currentUser.uid), { 
+                            score, vps, ppc, totalVrajs, totalClicks, totalCrits, chatsSent, totalUpgrades, goldenVrajsCaught, 
+                            timePlayed: savedTime + currentSession, username: currentUsername, 
+                            upgStates: upgrades.map(u => ({ owned: u.owned, cost: u.cost })), 
+                            achStates: achievements.map(a => a.unlocked), 
+                            prestigeCount, fatflaps, ownedPrestigeUpgrades, activeTheme, activeNametag, 
+                            ascensionUnlocked, petsState, equippedStyles: Array.from(equippedStyles), prestigeCostDeduction,
+                            isDev: isDev, isTester: isTester 
+                        }, { merge: true }); 
                     }}, 10000);
                     // UPDATED: Limit increased to 100
                     onSnapshot(query(collection(db, "leaderboard"), orderBy("totalVrajs", "desc"), limit(100)), (s) => {
@@ -1821,12 +2037,18 @@
                             
                             let rankClass = ""; let medal = ""; if (i === 0) { rankClass = "lb-rank-1"; medal = "🥇"; } else if (i === 1) { rankClass = "lb-rank-2"; medal = "🥈"; } else if (i === 2) { rankClass = "lb-rank-3"; medal = "🥉"; }
                             let lbNameDisplay = dData.username; const tagData = nameTagsData.find(n => n.id === dData.activeNametag); if(tagData && dData.activeNametag !== 'classic') { lbNameDisplay = `<span class="${tagData.class}">${dData.username}</span>`; }
-                            return `<div class="lb-card p-3 flex items-center justify-between mb-2 ${rankClass}"><div class="flex items-center gap-3"><span class="text-xs font-black">#${i+1} ${medal}</span><div><p class="text-xs font-bold">${lbNameDisplay}</p><p class="text-[9px] opacity-60 font-bold">${(dData.prestigeCount || 0)} Ascensions</p></div></div><div class="text-right"><p class="text-xs font-black text-blue-400">${formatNumber(Math.floor(dData.totalVrajs || 0))}</p></div></div>`;
+                            
+                            // UPDATED: Tag Logic for Leaderboard
+                            let tagHTML = "";
+                            if (dData.isDev) tagHTML = `<span class="dev-tag mr-1 text-[8px]">[DEV]</span>`;
+                            else if (dData.isTester) tagHTML = `<span class="beta-tag mr-1 text-[8px]">[BETA]</span>`;
+
+                            return `<div class="lb-card p-3 flex items-center justify-between mb-2 ${rankClass}"><div class="flex items-center gap-3"><span class="text-xs font-black">#${i+1} ${medal}</span><div><p class="text-xs font-bold">${tagHTML}${lbNameDisplay}</p><p class="text-[9px] opacity-60 font-bold">${(dData.prestigeCount || 0)} Ascensions</p></div></div><div class="text-right"><p class="text-xs font-black text-blue-400">${formatNumber(Math.floor(dData.totalVrajs || 0))}</p></div></div>`;
                         }).join('');
                         isTop10 = inTop; checkAchievements();
                     });
                     
-                    // --- UPDATED CHAT LOGIC ---
+                    // --- UPDATED CHAT LOGIC WITH DEV TAG ---
                     // Fixed auto-scroll to bottom (newest messages)
                     const chatBox = document.getElementById('chat-box');
                     // UPDATED: Limit increased to 50
@@ -1839,7 +2061,16 @@
                         chatBox.innerHTML = messages.map(d => {
                             const dData = d.data();
                             let nameClass = "text-emerald-400 font-bold"; const tagData = nameTagsData.find(n => n.id === dData.nametag); if(tagData && dData.nametag !== 'classic') nameClass = tagData.class;
-                            return `<div class="mb-1"><span class="${nameClass}">${dData.username}:</span> ${dData.text}</div>`;
+                            
+                            // DEV TAG VISIBILITY CHECK
+                            let devPrefix = "";
+                            if(dData.isDev) {
+                                devPrefix = `<span class="dev-tag text-[9px] mr-1">[DEV]</span>`;
+                            } else if(dData.isTester) {
+                                devPrefix = `<span class="beta-tag text-[9px] mr-1">[BETA]</span>`;
+                            }
+
+                            return `<div class="mb-1">${devPrefix}<span class="${nameClass}">${dData.username}:</span> ${dData.text}</div>`;
                         }).join('');
 
                         // Auto-scroll to bottom to see new message
@@ -1855,7 +2086,8 @@
 
         document.getElementById('chat-form').onsubmit = async (e) => {
             e.preventDefault(); const input = document.getElementById('chat-input'); if(!input.value.trim()) return;
-            await addDoc(collection(db, "globalChat"), { text: input.value, username: currentUsername, nametag: activeNametag, timestamp: serverTimestamp() }); 
+            // UPDATED: Add isDev/isTester flag to chat message
+            await addDoc(collection(db, "globalChat"), { text: input.value, username: currentUsername, nametag: activeNametag, isDev: isDev, isTester: isTester, timestamp: serverTimestamp() }); 
             chatsSent++; input.value = ""; checkAchievements();
         };
 
